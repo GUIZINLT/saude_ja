@@ -1,0 +1,8 @@
+[
+  { "id": "cardiologia", "name": "Cardiologia", "icon": "favorite" },
+  { "id": "dermatologia", "name": "Dermatologia", "icon": "face" },
+  { "id": "pediatria", "name": "Pediatria", "icon": "child_care" },
+  { "id": "ortopedia", "name": "Ortopedia", "icon": "accessibility_new" },
+  { "id": "neurologia", "name": "Neurologia", "icon": "psychology" },
+  { "id": "oftalmologia", "name": "Oftalmologia", "icon": "visibility" }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "a1",
+    "userId": "u1",
+    "doctorId": "d1",
+    "date": "2026-11-26",
+    "time": "09:30",
+    "status": "confirmed",
+    "notes": "Check-up anual",
+    "createdAt": "2026-11-20T14:12:00-03:00",
+    "cancelledAt": null
+  },
+  {
+    "id": "a2",
+    "userId": "u1",
+    "doctorId": "d2",
+    "date": "2026-11-09",
+    "time": "14:00",
+    "status": "completed",
+    "notes": null,
+    "createdAt": "2026-11-02T09:40:00-03:00",
+    "cancelledAt": null
+  },
+  {
+    "id": "a3",
+    "userId": "u1",
+    "doctorId": "d4",
+    "date": "2026-11-17",
+    "time": "15:00",
+    "status": "cancelled",
+    "notes": null,
+    "createdAt": "2026-11-05T18:05:00-03:00",
+    "cancelledAt": "2026-11-12T08:20:00-03:00"
+  }
+]

@@ -1,0 +1,79 @@
+[
+  {
+    "id": "d1",
+    "name": "Dra. Helena Ribeiro",
+    "specialtyId": "cardiologia",
+    "crm": "CRM/TO 12345",
+    "rating": 4.9,
+    "reviewCount": 128,
+    "bio": "Cardiologista com 12 anos de experiência em prevenção e check-up cardíaco.",
+    "photoUrl": null,
+    "featured": true
+  },
+  {
+    "id": "d2",
+    "name": "Dr. Carlos Mendes",
+    "specialtyId": "dermatologia",
+    "crm": "CRM/TO 23456",
+    "rating": 4.8,
+    "reviewCount": 96,
+    "bio": "Dermatologista clínico, atende acne, manchas e dermatologia geral.",
+    "photoUrl": null,
+    "featured": true
+  },
+  {
+    "id": "d3",
+    "name": "Dra. Ana Lima",
+    "specialtyId": "pediatria",
+    "crm": "CRM/TO 34567",
+    "rating": 4.9,
+    "reviewCount": 154,
+    "bio": "Pediatra, acompanha crianças do nascimento à adolescência.",
+    "photoUrl": null,
+    "featured": false
+  },
+  {
+    "id": "d4",
+    "name": "Dr. Rafael Costa",
+    "specialtyId": "ortopedia",
+    "crm": "CRM/TO 45678",
+    "rating": 4.7,
+    "reviewCount": 73,
+    "bio": "Ortopedista com foco em coluna e lesões esportivas.",
+    "photoUrl": null,
+    "featured": false
+  },
+  {
+    "id": "d5",
+    "name": "Dra. Juliana Alves",
+    "specialtyId": "neurologia",
+    "crm": "CRM/TO 56789",
+    "rating": 4.8,
+    "reviewCount": 61,
+    "bio": "Neurologista, atende enxaqueca, distúrbios do sono e epilepsia.",
+    "photoUrl": null,
+    "featured": false
+  },
+  {
+    "id": "d6",
+    "name": "Dr. Marcos Pereira",
+    "specialtyId": "oftalmologia",
+    "crm": "CRM/TO 67890",
+    "rating": 4.6,
+    "reviewCount": 48,
+    "bio": "Oftalmologista, exames de vista e acompanhamento de glaucoma.",
+    "photoUrl": null,
+    "featured": false
+  },
+  {
+    "id": "d7",
+    "name": "Dr. Paulo Nogueira",
+    "specialtyId": "cardiologia",
+    "crm": "CRM/TO 78901",
+    "rating": 4.7,
+    "reviewCount": 82,
+    "bio": "Cardiologista, especialista em hipertensão e arritmias.",
+    "photoUrl": null,
+    "featured": false
+  }
+]
