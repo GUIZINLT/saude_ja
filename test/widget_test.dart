@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saude_ja/core/routes/app_routes.dart';
+import 'package:saude_ja/design_system/components/app_bottom_navigation.dart';
+import 'package:saude_ja/design_system/components/appointment_card.dart';
 import 'package:saude_ja/design_system/components/date_chip.dart';
 import 'package:saude_ja/design_system/components/doctor_card.dart';
+import 'package:saude_ja/design_system/components/specialty_card.dart';
 import 'package:saude_ja/design_system/components/time_slot_button.dart';
 import 'package:saude_ja/main.dart';
 
@@ -205,5 +208,39 @@ void main() {
 
     expect(find.text('SaúdeJá | Design System'), findsOneWidget);
     expect(find.text('Bem-vindo ao SaúdeJá!'), findsOneWidget);
+
+    // Todos os componentes aparecem na vitrine.
+    final sampleList = find.byType(Scrollable).first;
+    for (final type in [
+      SpecialtyCard,
+      DoctorCard,
+      AppointmentCard,
+      DateChip,
+      TimeSlotButton,
+    ]) {
+      await tester.scrollUntilVisible(
+        find.byType(type).first,
+        300,
+        scrollable: sampleList,
+      );
+      expect(find.byType(type), findsWidgets, reason: '$type');
+    }
+    expect(find.byType(AppBottomNavigation), findsOneWidget);
+
+    // Horário ocupado não muda a seleção; livre muda.
+    TimeSlotButton slot(String time) =>
+        tester.widget(find.widgetWithText(TimeSlotButton, time));
+    expect(slot('09:30').selected, isTrue);
+    await tapAndSettle(tester, find.widgetWithText(TimeSlotButton, '08:30'));
+    expect(slot('09:30').selected, isTrue);
+    await tapAndSettle(tester, find.widgetWithText(TimeSlotButton, '10:00'));
+    expect(slot('10:00').selected, isTrue);
+    expect(slot('09:30').selected, isFalse);
+
+    // Diálogo de confirmação.
+    await tapAndSettle(tester, find.text('Abrir confirmação destrutiva'));
+    expect(find.text('Cancelar consulta?'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Manter consulta'));
+    expect(find.text('Mantido.'), findsOneWidget);
   });
 }

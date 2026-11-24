@@ -84,6 +84,15 @@ Paleta verde, tipografia e espaçamentos centralizados em `lib/design_system/tok
 | `AppDialog` | Aviso e confirmação (inclusive de ação destrutiva) |
 | `AppBottomNavigation` | Menu inferior |
 
+O **Sample App** (`flutter run -t lib/main_design_system.dart`) mostra os tokens e todos os componentes, cada um nos seus estados. Dá para escolher dia e horário e abrir os diálogos.
+
+<details>
+<summary>Ver o Sample App inteiro</summary>
+
+<img src="docs/screenshots/10_design_system_completo.png" width="320">
+
+</details>
+
 ## API e mock do backend
 
 - A documentação completa, com rotas, requests, responses e códigos de status, está em **[docs/API.md](docs/API.md)**.

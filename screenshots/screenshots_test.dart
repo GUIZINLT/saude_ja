@@ -123,6 +123,14 @@ void main() {
     await open(tester, route: AppRoutes.designSystem);
     await shoot(tester, '09_design_system');
   });
+
+  testWidgets('10 design system completo', (tester) async {
+    // Tela bem alta para caber o Sample App inteiro numa imagem só.
+    await open(tester, route: AppRoutes.designSystem);
+    tester.view.physicalSize = const Size(390, 3150) * _pixelRatio;
+    await tester.pumpAndSettle();
+    await shoot(tester, '10_design_system_completo');
+  });
 }
 
 /// Carrega Roboto e Material Icons do SDK do Flutter. Sem isso, os testes
