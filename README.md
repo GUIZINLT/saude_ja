@@ -1,17 +1,145 @@
-# saude_ja
+# SaúdeJá
 
-A new Flutter project.
+Aplicativo Flutter de **agendamento de consultas médicas**. O paciente cria a conta, encontra médicos por nome ou especialidade, escolhe data e horário, acompanha as consultas e pode cancelá-las.
 
-## Getting Started
+O projeto tem **design system próprio** (tokens, componentes e Sample App), **arquitetura MVVM** com `provider` e um **mock do backend** que segue a [documentação da API](docs/API.md). Assim, todas as telas funcionam sem servidor.
 
-This project is a starting point for a Flutter application.
+## Telas
 
-A few resources to get you started if this is your first Flutter project:
+| Login | Cadastro | Home |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/01_login.png" width="240"> | <img src="docs/screenshots/02_cadastro.png" width="240"> | <img src="docs/screenshots/03_home.png" width="240"> |
+| **Busca por especialidade** | **Agendamento** | **Consultas** |
+| <img src="docs/screenshots/04_busca.png" width="240"> | <img src="docs/screenshots/05_agendamento.png" width="240"> | <img src="docs/screenshots/06_consultas.png" width="240"> |
+| **Histórico** | **Perfil** | **Sample App do design system** |
+| <img src="docs/screenshots/07_historico.png" width="240"> | <img src="docs/screenshots/08_perfil.png" width="240"> | <img src="docs/screenshots/09_design_system.png" width="240"> |
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Funcionalidades
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Login e cadastro**, com validação dos campos e mensagens de erro da API (e-mail já cadastrado, senha incorreta).
+- **Home**: saudação, busca de médico ou especialidade, especialidades, próxima consulta e médicos em destaque.
+- **Agendamento**: próximos dias de atendimento do médico e horários livres, ocupados ou bloqueados. Se o horário for ocupado antes da confirmação, a grade se atualiza.
+- **Consultas**: consultas confirmadas, com cancelamento após confirmação.
+- **Histórico**: consultas realizadas e canceladas.
+- **Perfil**: dados do paciente e saída da conta.
+- Roda em **Android, iOS e web**.
+
+## Arquitetura (MVVM)
+
+```
+View (tela)  ──lê estado / chama ações──▶  ViewModel (ChangeNotifier)
+                                                │
+                                                ▼
+                                           Repository
+                                                │
+                                                ▼
+                                ApiService (interface)
+                                                │
+                                   ┌────────────┴────────────┐
+                                   ▼                         ▼
+                           MockApiService              (backend real,
+                           lê assets/mock/*.json        mesma interface)
+```
+
+- **Views** só desenham e repassam ações; não validam nem chamam a API.
+- **ViewModels** guardam o estado da tela (carregando, erro, dados) e as regras de apresentação.
+- **Repositories** reúnem as chamadas por assunto (autenticação, catálogo, consultas).
+- **ApiService** é o contrato da API. Hoje quem o implementa é o `MockApiService`; para usar um backend real, basta criar outra implementação e trocar uma linha no `main.dart`.
+
+```
+lib/
+├── core/              rotas, tema, validações e formatação de datas
+├── data/
+│   ├── models/        User, Doctor, Specialty, Appointment, ...
+│   ├── repositories/  AuthRepository, CatalogRepository, AppointmentRepository
+│   └── services/      ApiService (interface), MockApiService e MockBackend
+├── design_system/
+│   ├── tokens/        AppColors, AppTypography, AppSpacing
+│   ├── components/    componentes reutilizáveis (lista abaixo)
+│   └── sample_app/    vitrine dos componentes
+├── features/
+│   ├── auth/          Login e Cadastro
+│   ├── home/          Home e menu inferior
+│   ├── appointments/  Agendamento e Consultas
+│   ├── history/       Histórico
+│   └── profile/       Perfil
+├── main.dart                 app
+└── main_design_system.dart   abre direto o Sample App
+```
+
+## Design system
+
+Paleta verde, tipografia e espaçamentos centralizados em `lib/design_system/tokens/`.
+
+| Componente | Uso |
+|---|---|
+| `AppButton` | Botão principal e secundário, com estado de carregando |
+| `AppTextField` | Campo de formulário com ícone, erro e ação no fim |
+| `AppCard` | Card base |
+| `SpecialtyCard` | Especialidade com ícone |
+| `DoctorCard` | Médico com especialidade e nota |
+| `AppointmentCard` | Consulta com data, status e ação opcional |
+| `DateChip` | Dia no seletor de datas |
+| `TimeSlotButton` | Horário livre, ocupado ou escolhido |
+| `AppDialog` | Aviso e confirmação (inclusive de ação destrutiva) |
+| `AppBottomNavigation` | Menu inferior |
+
+## API e mock do backend
+
+- A documentação completa, com rotas, requests, responses e códigos de status, está em **[docs/API.md](docs/API.md)**.
+- Os dados iniciais ficam em `assets/mock/*.json`. Agendar e cancelar funcionam durante o uso, e tudo volta ao estado inicial quando o app reinicia.
+- O mesmo mock pode rodar como **servidor HTTP** (`http://localhost:8080`):
+
+```powershell
+dart run tool/mock_server.dart
+```
+
+**Usuário de teste:** `maria@saudeja.com` / `123456`
+
+## Como rodar
+
+Pré-requisito: Flutter (Dart 3.12 ou superior).
+
+```powershell
+flutter pub get
+```
+
+```powershell
+flutter run
+```
+
+No navegador:
+
+```powershell
+flutter run -d chrome
+```
+
+Só o Sample App do design system:
+
+```powershell
+flutter run -t lib/main_design_system.dart
+```
+
+## Testes
+
+```powershell
+flutter analyze
+```
+
+```powershell
+flutter test
+```
+
+São 57 testes: regras do mock, ViewModels (login, cadastro, Home, agendamento, consultas e histórico) e os fluxos completos nas telas.
+
+Os prints deste README são gerados por teste, sempre com os mesmos dados e data. Para atualizar depois de mudar alguma tela:
+
+```powershell
+flutter test screenshots --update-goldens
+```
+
+## Tecnologias
+
+- Flutter e Dart
+- `provider` (ChangeNotifier) para MVVM
+- Material 3
