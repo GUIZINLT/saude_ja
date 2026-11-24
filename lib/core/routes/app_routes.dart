@@ -5,6 +5,7 @@ import '../../data/repositories/appointment_repository.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/catalog_repository.dart';
 import '../../design_system/sample_app/sample_app.dart';
+import '../../features/appointments/viewmodels/appointment_list_viewmodel.dart';
 import '../../features/appointments/viewmodels/schedule_viewmodel.dart';
 import '../../features/appointments/views/schedule_view.dart';
 import '../../features/auth/viewmodels/login_viewmodel.dart';
@@ -37,12 +38,26 @@ class AppRoutes {
       child: const RegisterView(),
     ),
     home: _requireLogin(
-      (_) => ChangeNotifierProvider(
-        create: (context) => HomeViewModel(
-          auth: context.read<AuthRepository>(),
-          catalog: context.read<CatalogRepository>(),
-          appointments: context.read<AppointmentRepository>(),
-        )..load(),
+      (_) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => HomeViewModel(
+              auth: context.read<AuthRepository>(),
+              catalog: context.read<CatalogRepository>(),
+              appointments: context.read<AppointmentRepository>(),
+            )..load(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => UpcomingAppointmentsViewModel(
+              context.read<AppointmentRepository>(),
+            )..load(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => AppointmentHistoryViewModel(
+              context.read<AppointmentRepository>(),
+            )..load(),
+          ),
+        ],
         child: const MainView(),
       ),
     ),

@@ -154,6 +154,50 @@ void main() {
     expect(find.text('Olá, Maria'), findsNothing);
   });
 
+  testWidgets('cancelar em Consultas reflete no Histórico e na Home', (
+    tester,
+  ) async {
+    await tester.pumpWidget(SaudeJaApp(api: createTestApi()));
+    await tester.enterText(field('E-mail'), 'maria@saudeja.com');
+    await tester.enterText(field('Senha'), '123456');
+    await tapAndSettle(tester, find.widgetWithText(FilledButton, 'Entrar'));
+
+    // Aba Consultas.
+    await tapAndSettle(tester, find.text('Consultas'));
+    expect(find.text('Minhas consultas'), findsOneWidget);
+    expect(find.text('Dra. Helena Ribeiro'), findsOneWidget);
+
+    // Cancelar pede confirmação; "Manter consulta" não cancela.
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(TextButton, 'Cancelar consulta'),
+    );
+    expect(find.text('Cancelar consulta?'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Manter consulta'));
+    expect(find.text('Dra. Helena Ribeiro'), findsOneWidget);
+
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(TextButton, 'Cancelar consulta'),
+    );
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(FilledButton, 'Cancelar consulta'),
+    );
+    expect(find.text('Consulta cancelada.'), findsOneWidget);
+    expect(find.text('Você não tem consultas agendadas.'), findsOneWidget);
+
+    // Histórico: a1 cancelada agora + a3 cancelada + a2 realizada.
+    await tapAndSettle(tester, find.text('Histórico'));
+    expect(find.text('Consultas realizadas e canceladas.'), findsOneWidget);
+    expect(find.text('Cancelada'), findsNWidgets(2));
+    expect(find.text('Realizada'), findsOneWidget);
+
+    // Home: sem próxima consulta.
+    await tapAndSettle(tester, find.text('Home'));
+    expect(find.text('Você não tem consultas agendadas.'), findsOneWidget);
+  });
+
   testWidgets('Sample App do design system continua acessível', (tester) async {
     await tester.pumpWidget(
       SaudeJaApp(api: createTestApi(), initialRoute: AppRoutes.designSystem),

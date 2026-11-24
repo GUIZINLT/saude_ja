@@ -10,6 +10,9 @@ class AppointmentCard extends StatelessWidget {
   final String status;
   final VoidCallback? onTap;
 
+  /// Área opcional no fim do card, por exemplo um botão de ação.
+  final Widget? footer;
+
   const AppointmentCard({
     super.key,
     required this.doctorName,
@@ -18,12 +21,13 @@ class AppointmentCard extends StatelessWidget {
     required this.time,
     this.status = 'Confirmada',
     this.onTap,
+    this.footer,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
+      color: AppColors.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
@@ -80,6 +84,7 @@ class AppointmentCard extends StatelessWidget {
                   Text(time),
                 ],
               ),
+              if (footer != null) ...[const Divider(height: 24), footer!],
             ],
           ),
         ),
@@ -88,14 +93,20 @@ class AppointmentCard extends StatelessWidget {
   }
 
   Widget _buildStatus() {
-    final bool confirmed = status.toLowerCase() == 'confirmada';
+    final normalized = status.toLowerCase();
+    final (Color background, Color foreground) = switch (normalized) {
+      'confirmada' => (
+        AppColors.secondary.withValues(alpha: 0.2),
+        AppColors.primary,
+      ),
+      'cancelada' => (AppColors.error.withValues(alpha: 0.1), AppColors.error),
+      _ => (AppColors.background, AppColors.textSecondary),
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: confirmed
-            ? AppColors.secondary.withValues(alpha: 0.2)
-            : AppColors.background,
+        color: background,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -103,7 +114,7 @@ class AppointmentCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: confirmed ? AppColors.primary : AppColors.textSecondary,
+          color: foreground,
         ),
       ),
     );
