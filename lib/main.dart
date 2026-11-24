@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
+import 'data/repositories/appointment_repository.dart';
 import 'data/repositories/auth_repository.dart';
+import 'data/repositories/catalog_repository.dart';
 import 'data/services/api_service.dart';
 import 'data/services/mock_api_service.dart';
 
@@ -31,6 +33,8 @@ class SaudeJaApp extends StatelessWidget {
       providers: [
         Provider<ApiService>.value(value: api),
         ChangeNotifierProvider(create: (_) => AuthRepository(api)),
+        Provider(create: (_) => CatalogRepository(api)),
+        Provider(create: (_) => AppointmentRepository(api)),
       ],
       child: MaterialApp(
         title: 'SaúdeJá',

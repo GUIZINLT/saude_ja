@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
+import '../tokens/app_spacing.dart';
 
 class SpecialtyCard extends StatelessWidget {
   final String title;
@@ -21,9 +22,14 @@ class SpecialtyCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 112,
-        padding: const EdgeInsets.all(16),
+        // Pouco espaço nas laterais para nomes longos ("Dermatologia",
+        // "Oftalmologia") caberem sem quebrar no meio da palavra.
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.md,
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.border),
         ),

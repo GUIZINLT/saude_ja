@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppTextField extends StatelessWidget {
-  final String label;
+  /// Rótulo do campo. Pode ser omitido em campos de busca, que mostram só
+  /// o [hint].
+  final String? label;
   final String hint;
   final IconData? prefixIcon;
 
@@ -21,7 +23,7 @@ class AppTextField extends StatelessWidget {
 
   const AppTextField({
     super.key,
-    required this.label,
+    this.label,
     required this.hint,
     this.prefixIcon,
     this.suffixIcon,

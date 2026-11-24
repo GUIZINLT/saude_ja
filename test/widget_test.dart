@@ -34,7 +34,27 @@ void main() {
 
     expect(find.text('Olá, Maria'), findsOneWidget);
 
-    // Sair volta para o Login.
+    // Seções da Home, com os dados do mock.
+    expect(find.text('Especialidades'), findsOneWidget);
+    expect(find.text('Cardiologia'), findsWidgets);
+    expect(find.text('Próxima consulta'), findsOneWidget);
+    expect(find.text('Qui, 26 nov 2026'), findsOneWidget);
+    expect(find.text('Confirmada'), findsOneWidget);
+
+    // Busca com espera de digitação.
+    await tester.enterText(find.byType(TextFormField), 'carlos');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+    expect(find.text('Resultados (1)'), findsOneWidget);
+    expect(find.text('Dr. Carlos Mendes'), findsOneWidget);
+    expect(find.text('Próxima consulta'), findsNothing);
+
+    await tapAndSettle(tester, find.byTooltip('Limpar busca'));
+    expect(find.text('Próxima consulta'), findsOneWidget);
+
+    // Menu inferior: Perfil > Sair volta para o Login.
+    await tapAndSettle(tester, find.text('Perfil'));
+    expect(find.text('maria@saudeja.com'), findsOneWidget);
     await tapAndSettle(tester, find.text('Sair'));
     expect(find.widgetWithText(FilledButton, 'Entrar'), findsOneWidget);
   });
