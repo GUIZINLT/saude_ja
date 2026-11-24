@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saude_ja/core/routes/app_routes.dart';
+import 'package:saude_ja/design_system/components/date_chip.dart';
+import 'package:saude_ja/design_system/components/doctor_card.dart';
+import 'package:saude_ja/design_system/components/time_slot_button.dart';
 import 'package:saude_ja/main.dart';
 
 import 'helpers/test_api.dart';
@@ -98,6 +101,57 @@ void main() {
     );
 
     expect(find.text('Olá, João'), findsOneWidget);
+  });
+
+  testWidgets('agendar consulta a partir da Home', (tester) async {
+    await tester.pumpWidget(SaudeJaApp(api: createTestApi()));
+    await tester.enterText(field('E-mail'), 'maria@saudeja.com');
+    await tester.enterText(field('Senha'), '123456');
+    await tapAndSettle(tester, find.widgetWithText(FilledButton, 'Entrar'));
+
+    // Médicos em destaque > Dra. Helena (rola a Home até o card).
+    final helena = find.widgetWithText(DoctorCard, 'Dra. Helena Ribeiro');
+    final homeList = find
+        .byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+        )
+        .first;
+    await tester.scrollUntilVisible(helena, 200, scrollable: homeList);
+    await tapAndSettle(tester, helena);
+    expect(find.text('Agendar consulta'), findsOneWidget);
+    expect(find.text('Novembro 2026'), findsOneWidget);
+    expect(find.byType(DateChip), findsNWidgets(5));
+
+    // Sem horário escolhido o botão fica desabilitado.
+    final confirmar = find.widgetWithText(
+      FilledButton,
+      'Confirmar agendamento',
+    );
+    expect(tester.widget<FilledButton>(confirmar).onPressed, isNull);
+
+    await tapAndSettle(tester, find.widgetWithText(TimeSlotButton, '09:00'));
+    await tapAndSettle(tester, confirmar);
+
+    expect(find.text('Consulta agendada!'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Voltar para a Home'));
+
+    // A Home recarrega e mostra a nova próxima consulta (hoje, 09:00).
+    // Volta a rolagem para o topo, onde ficam a saudação e o card.
+    await tester.drag(homeList, const Offset(0, 2000));
+    await tester.pumpAndSettle();
+    expect(find.text('Olá, Maria'), findsOneWidget);
+    expect(find.text('Ter, 24 nov 2026'), findsOneWidget);
+    expect(find.text('Às 09:00'), findsOneWidget);
+  });
+
+  testWidgets('tela que exige login abre o Login sem sessão', (tester) async {
+    await tester.pumpWidget(
+      SaudeJaApp(api: createTestApi(), initialRoute: AppRoutes.home),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(FilledButton, 'Entrar'), findsOneWidget);
+    expect(find.text('Olá, Maria'), findsNothing);
   });
 
   testWidgets('Sample App do design system continua acessível', (tester) async {

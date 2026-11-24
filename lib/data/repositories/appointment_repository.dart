@@ -17,6 +17,13 @@ class AppointmentRepository {
     newestFirst: true,
   );
 
+  /// Agenda uma consulta. Lança ApiException (409 se o horário foi ocupado).
+  Future<Appointment> create({
+    required String doctorId,
+    required String date,
+    required String time,
+  }) => _api.createAppointment(doctorId: doctorId, date: date, time: time);
+
   /// A próxima consulta confirmada, ou null se não houver.
   Future<Appointment?> getNext() async {
     final upcoming = await getUpcoming();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/specialty_icons.dart';
+import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../data/models/appointment.dart';
 import '../../../data/models/doctor.dart';
@@ -41,6 +42,14 @@ class _HomeViewState extends State<HomeView> {
   void _selectSpecialty(HomeViewModel vm, Specialty specialty) {
     _searchController.text = specialty.name;
     vm.selectSpecialty(specialty);
+  }
+
+  /// Abre o Agendamento; se a consulta for marcada, atualiza a Home.
+  Future<void> _openSchedule(HomeViewModel vm, Doctor doctor) async {
+    final scheduled = await Navigator.of(
+      context,
+    ).pushNamed(AppRoutes.schedule, arguments: doctor.id);
+    if (scheduled == true) vm.load();
   }
 
   void _clearSearch(HomeViewModel vm) {
@@ -84,7 +93,10 @@ class _HomeViewState extends State<HomeView> {
                       : null,
                 ),
                 if (vm.isSearching)
-                  _SearchResults(vm: vm)
+                  _SearchResults(
+                    vm: vm,
+                    onDoctorTap: (d) => _openSchedule(vm, d),
+                  )
                 else
                   ..._buildSections(vm),
               ],
@@ -136,7 +148,10 @@ class _HomeViewState extends State<HomeView> {
             onTap: widget.onOpenAppointments,
           ),
           const _SectionTitle('Médicos em destaque'),
-          _DoctorList(doctors: vm.featuredDoctors),
+          _DoctorList(
+            doctors: vm.featuredDoctors,
+            onTap: (d) => _openSchedule(vm, d),
+          ),
         ];
     }
   }
@@ -197,8 +212,9 @@ class _NextAppointment extends StatelessWidget {
 
 class _DoctorList extends StatelessWidget {
   final List<Doctor> doctors;
+  final ValueChanged<Doctor> onTap;
 
-  const _DoctorList({required this.doctors});
+  const _DoctorList({required this.doctors, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -209,6 +225,7 @@ class _DoctorList extends StatelessWidget {
             name: d.name,
             specialty: d.specialtyName,
             rating: d.rating,
+            onTap: () => onTap(d),
           ),
           const SizedBox(height: AppSpacing.sm),
         ],
@@ -219,8 +236,9 @@ class _DoctorList extends StatelessWidget {
 
 class _SearchResults extends StatelessWidget {
   final HomeViewModel vm;
+  final ValueChanged<Doctor> onDoctorTap;
 
-  const _SearchResults({required this.vm});
+  const _SearchResults({required this.vm, required this.onDoctorTap});
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +256,7 @@ class _SearchResults extends StatelessWidget {
         style: AppTypography.subtitle,
       );
     } else {
-      content = _DoctorList(doctors: vm.searchResults);
+      content = _DoctorList(doctors: vm.searchResults, onTap: onDoctorTap);
     }
 
     return Column(

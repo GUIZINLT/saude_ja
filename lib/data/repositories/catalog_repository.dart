@@ -1,3 +1,4 @@
+import '../models/availability.dart';
 import '../models/doctor.dart';
 import '../models/specialty.dart';
 import '../services/api_service.dart';
@@ -23,4 +24,10 @@ class CatalogRepository {
 
   Future<List<Doctor>> getDoctorsBySpecialty(String specialtyId) =>
       _api.getDoctors(specialtyId: specialtyId);
+
+  Future<Doctor> getDoctor(String id) => _api.getDoctor(id);
+
+  /// Próximos [days] dias em que o médico atende, a partir de hoje.
+  Future<DoctorAvailability> getAvailability(String doctorId, {int days = 5}) =>
+      _api.getAvailability(doctorId, days: days);
 }
