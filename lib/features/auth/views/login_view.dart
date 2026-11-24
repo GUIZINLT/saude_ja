@@ -30,82 +30,87 @@ class LoginView extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            child: AutofillGroup(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const _Logo(),
-                  const SizedBox(height: AppSpacing.xl),
-                  AppTextField(
-                    label: 'E-mail',
-                    hint: 'seuemail@exemplo.com',
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    autofillHints: const [AutofillHints.email],
-                    errorText: vm.emailError,
-                    onChanged: vm.setEmail,
-                    enabled: !vm.isLoading,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  AppTextField(
-                    label: 'Senha',
-                    hint: 'Digite sua senha',
-                    prefixIcon: Icons.lock_outline,
-                    obscureText: vm.obscurePassword,
-                    textInputAction: TextInputAction.done,
-                    autofillHints: const [AutofillHints.password],
-                    errorText: vm.passwordError,
-                    onChanged: vm.setPassword,
-                    onSubmitted: (_) => _submit(context),
-                    enabled: !vm.isLoading,
-                    suffixIcon: IconButton(
-                      tooltip: vm.obscurePassword
-                          ? 'Mostrar senha'
-                          : 'Ocultar senha',
-                      icon: Icon(
-                        vm.obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: AutofillGroup(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const _Logo(),
+                      const SizedBox(height: AppSpacing.xl),
+                      AppTextField(
+                        label: 'E-mail',
+                        hint: 'seuemail@exemplo.com',
+                        prefixIcon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.email],
+                        errorText: vm.emailError,
+                        onChanged: vm.setEmail,
+                        enabled: !vm.isLoading,
                       ),
-                      onPressed: vm.togglePasswordVisibility,
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () =>
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Recuperação de senha ainda não disponível.',
-                              ),
-                            ),
+                      const SizedBox(height: AppSpacing.md),
+                      AppTextField(
+                        label: 'Senha',
+                        hint: 'Digite sua senha',
+                        prefixIcon: Icons.lock_outline,
+                        obscureText: vm.obscurePassword,
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [AutofillHints.password],
+                        errorText: vm.passwordError,
+                        onChanged: vm.setPassword,
+                        onSubmitted: (_) => _submit(context),
+                        enabled: !vm.isLoading,
+                        suffixIcon: IconButton(
+                          tooltip: vm.obscurePassword
+                              ? 'Mostrar senha'
+                              : 'Ocultar senha',
+                          icon: Icon(
+                            vm.obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
                           ),
-                      child: const Text('Esqueci minha senha'),
-                    ),
+                          onPressed: vm.togglePasswordVisibility,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () =>
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Recuperação de senha ainda não disponível.',
+                                  ),
+                                ),
+                              ),
+                          child: const Text('Esqueci minha senha'),
+                        ),
+                      ),
+                      if (vm.errorMessage != null) ...[
+                        FormErrorBanner(message: vm.errorMessage!),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
+                      const SizedBox(height: AppSpacing.sm),
+                      AppButton(
+                        label: 'Entrar',
+                        isLoading: vm.isLoading,
+                        onPressed: () => _submit(context),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      AppButton(
+                        label: 'Criar conta',
+                        isSecondary: true,
+                        onPressed: vm.isLoading
+                            ? null
+                            : () => Navigator.of(
+                                context,
+                              ).pushNamed(AppRoutes.register),
+                      ),
+                    ],
                   ),
-                  if (vm.errorMessage != null) ...[
-                    FormErrorBanner(message: vm.errorMessage!),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
-                  const SizedBox(height: AppSpacing.sm),
-                  AppButton(
-                    label: 'Entrar',
-                    isLoading: vm.isLoading,
-                    onPressed: () => _submit(context),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  AppButton(
-                    label: 'Criar conta',
-                    isSecondary: true,
-                    onPressed: vm.isLoading
-                        ? null
-                        : () => Navigator.of(
-                            context,
-                          ).pushNamed(AppRoutes.register),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
