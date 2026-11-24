@@ -150,11 +150,11 @@ class _SampleAppState extends State<SampleApp> {
 
   List<Widget> _typography() => [
     const _Section('Tipografia'),
-    const Text('Heading 26', style: AppTypography.heading),
-    const Text('Title 20', style: AppTypography.title),
-    const Text('Subtitle 16', style: AppTypography.subtitle),
-    const Text('Body 14', style: AppTypography.body),
-    const Text('Caption 12', style: AppTypography.caption),
+    const Text('Título principal 26', style: AppTypography.heading),
+    const Text('Título 20', style: AppTypography.title),
+    const Text('Subtítulo 16', style: AppTypography.subtitle),
+    const Text('Texto 14', style: AppTypography.body),
+    const Text('Legenda 12', style: AppTypography.caption),
   ];
 
   List<Widget> _buttons() => [
