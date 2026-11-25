@@ -100,6 +100,39 @@ void main() {
       expect(error(res)['code'], 'EMAIL_ALREADY_IN_USE');
     });
 
+    test('GET /users/me devolve o dono do token', () async {
+      final auth = await loginToken();
+      final res = await api.handle('GET', '/users/me', authorization: auth);
+      expect(res.statusCode, 200);
+      expect((res.body as Map)['email'], 'maria@saudeja.com');
+      expect((res.body as Map).containsKey('password'), isFalse);
+    });
+
+    test('token continua valendo depois de reiniciar o mock', () async {
+      final auth = await loginToken();
+      final restarted = MockBackend(
+        loader: (file) => File('assets/mock/$file').readAsString(),
+        clock: () => DateTime(2026, 11, 24, 7, 0),
+      );
+      final res = await restarted.handle(
+        'GET',
+        '/users/me',
+        authorization: auth,
+      );
+      expect(res.statusCode, 200);
+    });
+
+    test('token inválido ou de usuário inexistente -> 401', () async {
+      for (final token in ['abc', 'mock-u99-1']) {
+        final res = await api.handle(
+          'GET',
+          '/users/me',
+          authorization: 'Bearer $token',
+        );
+        expect(res.statusCode, 401, reason: token);
+      }
+    });
+
     test('cadastro inválido -> 422 com todos os campos', () async {
       final res = await api.handle(
         'POST',

@@ -211,7 +211,7 @@ class _DoctorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppSpacing.ms),
       child: Row(
         children: [
           CircleAvatar(
@@ -219,7 +219,7 @@ class _DoctorHeader extends StatelessWidget {
             backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
             child: const Icon(Icons.person, color: AppColors.primary, size: 30),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.ms),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +239,7 @@ class _DoctorHeader extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSpacing.xxs),
                 Text(doctor.crm, style: AppTypography.caption),
               ],
             ),

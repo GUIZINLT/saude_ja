@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
 import '../tokens/app_spacing.dart';
+import '../tokens/app_radius.dart';
+import '../tokens/app_typography.dart';
 
 class SpecialtyCard extends StatelessWidget {
   final String title;
@@ -19,7 +21,7 @@ class SpecialtyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       child: Container(
         width: 112,
         // Pouco espaço nas laterais para nomes longos ("Dermatologia",
@@ -30,7 +32,7 @@ class SpecialtyCard extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
@@ -45,15 +47,11 @@ class SpecialtyCard extends StatelessWidget {
               ),
               child: Icon(icon, color: AppColors.primary, size: 26),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTypography.label,
             ),
           ],
         ),

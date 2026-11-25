@@ -1,5 +1,9 @@
 # SaúdeJá
 
+[![CI](https://github.com/GUIZINLT/saude_ja/actions/workflows/ci.yml/badge.svg)](https://github.com/GUIZINLT/saude_ja/actions/workflows/ci.yml)
+
+<img src="assets/brand/icon.png" width="96" align="right" alt="Ícone do SaúdeJá">
+
 Aplicativo Flutter de **agendamento de consultas médicas**. O paciente cria a conta, encontra médicos por nome ou especialidade, escolhe data e horário, acompanha as consultas e pode cancelá-las.
 
 O projeto tem **design system próprio** (tokens, componentes e Sample App), **arquitetura MVVM** com `provider` e um **mock do backend** que segue a [documentação da API](docs/API.md). Assim, todas as telas funcionam sem servidor.
@@ -22,6 +26,8 @@ O projeto tem **design system próprio** (tokens, componentes e Sample App), **a
 - **Consultas**: consultas confirmadas, com cancelamento após confirmação.
 - **Histórico**: consultas realizadas e canceladas.
 - **Perfil**: dados do paciente e saída da conta.
+- **Sessão salva**: ao reabrir o app (ou recarregar a página na web), o paciente continua logado.
+- **Ícone e tela de abertura** próprios, gerados a partir do design system.
 - Roda em **Android, iOS e web**.
 
 ## Arquitetura (MVVM)
@@ -69,7 +75,7 @@ lib/
 
 ## Design system
 
-Paleta verde, tipografia e espaçamentos centralizados em `lib/design_system/tokens/`.
+Cores, tipografia, espaçamentos e arredondamentos ficam centralizados em `lib/design_system/tokens/` (`AppColors`, `AppTypography`, `AppSpacing` e `AppRadius`). Os componentes não usam valores soltos: toda cor, tamanho de fonte, espaço e canto vem de um token.
 
 | Componente | Uso |
 |---|---|
@@ -139,16 +145,36 @@ flutter analyze
 flutter test
 ```
 
-São 57 testes: regras do mock, ViewModels (login, cadastro, Home, agendamento, consultas e histórico) e os fluxos completos nas telas.
+São 65 testes: regras do mock, sessão salva, ViewModels (login, cadastro, Home, agendamento, consultas e histórico) e os fluxos completos nas telas.
+
+A cada push, o **GitHub Actions** ([.github/workflows/ci.yml](.github/workflows/ci.yml)) confere formatação, análise estática, testes e o build web. O selo no topo deste README mostra o resultado.
 
 Os prints deste README são gerados por teste, sempre com os mesmos dados e data. Para atualizar depois de mudar alguma tela:
 
 ```powershell
-flutter test screenshots --update-goldens
+flutter test screenshots/screenshots_test.dart --update-goldens
+```
+
+O ícone e a tela de abertura também são gerados a partir do design system
+(imagens em `assets/brand/`):
+
+```powershell
+flutter test screenshots/brand_assets_test.dart --update-goldens
+```
+
+```powershell
+dart run flutter_launcher_icons
+```
+
+```powershell
+dart run flutter_native_splash:create
 ```
 
 ## Tecnologias
 
 - Flutter e Dart
 - `provider` (ChangeNotifier) para MVVM
+- `shared_preferences` para salvar a sessão
+- `flutter_launcher_icons` e `flutter_native_splash` para ícone e tela de abertura
+- GitHub Actions para integração contínua
 - Material 3

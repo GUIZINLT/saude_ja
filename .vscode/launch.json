@@ -1,0 +1,26 @@
+{
+  // Escolha uma opção em "Executar e Depurar" (Ctrl+Shift+D) e aperte F5.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SaúdeJá (Chrome)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
+    },
+    {
+      "name": "SaúdeJá (celular ou emulador)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "Design System (Chrome)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_design_system.dart",
+      "deviceId": "chrome"
+    }
+  ]
+}

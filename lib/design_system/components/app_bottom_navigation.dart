@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
+import '../tokens/app_typography.dart';
 
 /// Item do menu inferior.
 class AppNavItem {
@@ -41,8 +42,7 @@ class AppBottomNavigation extends StatelessWidget {
           elevation: 0,
           height: 72,
           labelTextStyle: WidgetStateProperty.resolveWith(
-            (states) => TextStyle(
-              fontSize: 12,
+            (states) => AppTypography.labelSmall.copyWith(
               fontWeight: states.contains(WidgetState.selected)
                   ? FontWeight.w700
                   : FontWeight.w500,

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
+import '../tokens/app_radius.dart';
+import '../tokens/app_spacing.dart';
+import '../tokens/app_typography.dart';
 
 /// Botão de dia do seletor de datas ("Qui / 26").
 class DateChip extends StatelessWidget {
@@ -28,7 +31,7 @@ class DateChip extends StatelessWidget {
     final Color border;
     if (selected) {
       background = AppColors.primary;
-      foreground = Colors.white;
+      foreground = AppColors.onPrimary;
       border = AppColors.primary;
     } else if (enabled) {
       background = AppColors.surface;
@@ -47,12 +50,12 @@ class DateChip extends StatelessWidget {
       child: Material(
         color: background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.chip),
           side: BorderSide(color: border),
         ),
         child: InkWell(
           onTap: enabled ? onTap : null,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.chip),
           child: SizedBox(
             width: 58,
             height: 72,
@@ -61,20 +64,12 @@ class DateChip extends StatelessWidget {
               children: [
                 Text(
                   weekday,
-                  style: TextStyle(
-                    color: foreground,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTypography.labelSmall.copyWith(color: foreground),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   '$day',
-                  style: TextStyle(
-                    color: foreground,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTypography.number.copyWith(color: foreground),
                 ),
               ],
             ),

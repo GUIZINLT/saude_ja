@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
+import '../tokens/app_radius.dart';
+import '../tokens/app_spacing.dart';
+import '../tokens/app_typography.dart';
 
 class DoctorCard extends StatelessWidget {
   final String name;
@@ -19,18 +22,18 @@ class DoctorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
+      color: AppColors.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         side: const BorderSide(color: AppColors.border),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(AppSpacing.ms),
           child: Row(
             children: [
               CircleAvatar(
@@ -42,33 +45,27 @@ class DoctorCard extends StatelessWidget {
                   size: 30,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpacing.ms),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      specialty,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
+                    Text(name, style: AppTypography.bodyStrong),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(specialty, style: AppTypography.bodySmall),
+                    const SizedBox(height: AppSpacing.xs),
                     Row(
                       children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 17),
-                        const SizedBox(width: 4),
-                        Text(rating.toStringAsFixed(1)),
+                        const Icon(
+                          Icons.star,
+                          color: AppColors.rating,
+                          size: 17,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          rating.toStringAsFixed(1),
+                          style: AppTypography.body,
+                        ),
                       ],
                     ),
                   ],

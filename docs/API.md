@@ -17,6 +17,7 @@ API REST do app SaúdeJá (agendamento de consultas). Esta documentação descre
 |---|---|---|---|
 | POST | [`/auth/login`](#post-authlogin) | não | Login |
 | POST | [`/auth/register`](#post-authregister) | não | Cadastro |
+| GET | [`/users/me`](#get-usersme) | **sim** | Abertura do app (restaurar a sessão salva) |
 | GET | [`/specialties`](#get-specialties) | não | Home, Especialidades |
 | GET | [`/doctors`](#get-doctors) | não | Home (médicos em destaque), lista de médicos, busca |
 | GET | [`/doctors/{id}`](#get-doctorsid) | não | Agendamento (cabeçalho) |
@@ -161,6 +162,32 @@ Exemplo de `422`:
   }
 }
 ```
+
+### GET /users/me
+
+Devolve o usuário dono do token. O app chama esta rota ao abrir, quando há um token salvo no aparelho: se ela responder `200`, o usuário entra direto na Home; se responder `401`, o app apaga o token e mostra o Login.
+
+**Header:** `Authorization: Bearer <token>`
+
+**Response `200 OK`**
+
+```json
+{
+  "id": "u1",
+  "name": "Maria Souza",
+  "email": "maria@saudeja.com",
+  "phone": "63999990000",
+  "createdAt": "2026-11-01T10:00:00-03:00"
+}
+```
+
+**Erros**
+
+| Status | `code` | Quando |
+|---|---|---|
+| 401 | `UNAUTHORIZED` | token ausente, inválido ou de um usuário que não existe mais |
+
+> **Token no mock:** o formato é `mock-<idDoUsuario>-<n>`. Como num JWT, o próprio token diz de quem é, então ele continua valendo depois de reiniciar o app, desde que o usuário exista nos dados do mock. Usuários criados pelo cadastro somem quando o app reinicia, e o token deles passa a responder `401`.
 
 ---
 

@@ -8,6 +8,7 @@ import '../models/availability.dart';
 import '../models/doctor.dart';
 import '../models/register_request.dart';
 import '../models/specialty.dart';
+import '../models/user.dart';
 import 'api_exception.dart';
 import 'api_service.dart';
 import 'mock/mock_backend.dart';
@@ -82,6 +83,18 @@ class MockApiService implements ApiService {
     final session = AuthSession.fromJson(body as Map<String, dynamic>);
     _token = session.token;
     return session;
+  }
+
+  @override
+  Future<User> restoreSession(String token) async {
+    _token = token;
+    try {
+      final body = await _send('GET', '/users/me');
+      return User.fromJson(body as Map<String, dynamic>);
+    } catch (_) {
+      _token = null;
+      rethrow;
+    }
   }
 
   @override

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
+import '../tokens/app_radius.dart';
+import '../tokens/app_typography.dart';
 
 /// Botão de horário da grade de agendamento.
 ///
@@ -27,7 +29,7 @@ class TimeSlotButton extends StatelessWidget {
     final Color border;
     if (selected) {
       background = AppColors.primary;
-      foreground = Colors.white;
+      foreground = AppColors.onPrimary;
       border = AppColors.primary;
     } else if (available) {
       background = AppColors.surface;
@@ -48,20 +50,19 @@ class TimeSlotButton extends StatelessWidget {
       child: Material(
         color: background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           side: BorderSide(color: border),
         ),
         child: InkWell(
           onTap: available ? onTap : null,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           child: SizedBox(
             height: 44,
             child: Center(
               child: Text(
                 time,
-                style: TextStyle(
+                style: AppTypography.titleSmall.copyWith(
                   color: foreground,
-                  fontSize: 16,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
                   decoration: available ? null : TextDecoration.lineThrough,
                   decorationColor: foreground,

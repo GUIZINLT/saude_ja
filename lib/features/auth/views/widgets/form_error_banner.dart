@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_spacing.dart';
 import '../../../../design_system/tokens/app_typography.dart';
+import '../../../../design_system/tokens/app_radius.dart';
 
 /// Faixa de erro geral do formulário (ex.: "E-mail ou senha incorretos.").
 class FormErrorBanner extends StatelessWidget {
@@ -16,7 +17,7 @@ class FormErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(

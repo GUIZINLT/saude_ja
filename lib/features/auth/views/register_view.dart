@@ -9,6 +9,7 @@ import '../../../design_system/tokens/app_spacing.dart';
 import '../../../design_system/tokens/app_typography.dart';
 import '../viewmodels/register_viewmodel.dart';
 import 'widgets/form_error_banner.dart';
+import '../../../design_system/tokens/app_radius.dart';
 
 class RegisterView extends StatelessWidget {
   const RegisterView({super.key});
@@ -181,7 +182,7 @@ class _TermsCheckbox extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           onTap: onChanged == null ? null : () => onChanged!(!value),
           child: Row(
             children: [

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
+import '../tokens/app_radius.dart';
+import '../tokens/app_spacing.dart';
+import '../tokens/app_typography.dart';
 
 class AppointmentCard extends StatelessWidget {
   final String doctorName;
@@ -31,48 +34,42 @@ class AppointmentCard extends StatelessWidget {
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         side: const BorderSide(color: AppColors.border),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   const Icon(Icons.calendar_month, color: AppColors.primary),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
                       date,
-                      style: const TextStyle(
+                      style: AppTypography.body.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
                   _buildStatus(),
                 ],
               ),
-              const Divider(height: 24),
-              Text(
-                doctorName,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
+              const Divider(height: AppSpacing.lg),
+              Text(doctorName, style: AppTypography.titleSmall),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 specialty,
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: AppTypography.body.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.ms),
               Row(
                 children: [
                   const Icon(
@@ -80,11 +77,14 @@ class AppointmentCard extends StatelessWidget {
                     color: AppColors.primary,
                     size: 18,
                   ),
-                  const SizedBox(width: 6),
-                  Text(time),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(time, style: AppTypography.body),
                 ],
               ),
-              if (footer != null) ...[const Divider(height: 24), footer!],
+              if (footer != null) ...[
+                const Divider(height: AppSpacing.lg),
+                footer!,
+              ],
             ],
           ),
         ),
@@ -104,18 +104,17 @@ class AppointmentCard extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm + AppSpacing.xxs,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
       ),
       child: Text(
         status,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: foreground,
-        ),
+        style: AppTypography.badge.copyWith(color: foreground),
       ),
     );
   }

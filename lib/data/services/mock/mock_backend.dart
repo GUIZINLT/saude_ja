@@ -36,9 +36,12 @@ class MockBackend {
   late final List<Map<String, dynamic>> _schedules;
   late final List<Map<String, dynamic>> _appointments;
 
-  /// token -> userId
-  final Map<String, String> _tokens = {};
   int _tokenSeq = 0;
+
+  /// Token no formato `mock-<userId>-<n>`. Como num JWT, o próprio token
+  /// diz de quem é: continua valendo depois de reiniciar o app, desde que
+  /// o usuário exista nos dados do mock.
+  static final _tokenRe = RegExp(r'^mock-(u\d+)-\d+$');
 
   static final _dateRe = RegExp(r'^\d{4}-\d{2}-\d{2}$');
   static final _timeRe = RegExp(r'^([01]\d|2[0-3]):[0-5]\d$');
@@ -85,6 +88,8 @@ class MockBackend {
           return _login(_bodyMap(body));
         case ['auth', 'register'] when m == 'POST':
           return _register(_bodyMap(body));
+        case ['users', 'me'] when m == 'GET':
+          return _me(_auth(authorization));
         case ['specialties'] when m == 'GET':
           return _listSpecialties();
         case ['doctors'] when m == 'GET':
@@ -182,17 +187,21 @@ class MockBackend {
 
   Map<String, dynamic> _session(Map<String, dynamic> user) {
     final token = 'mock-${user['id']}-${++_tokenSeq}';
-    _tokens[token] = user['id'] as String;
     return {'token': token, 'user': _publicUser(user)};
   }
+
+  MockResponse _me(String userId) => MockResponse(
+    200,
+    _publicUser(_users.firstWhere((u) => u['id'] == userId)),
+  );
 
   String _auth(String? authorization) {
     const prefix = 'Bearer ';
     final token = (authorization != null && authorization.startsWith(prefix))
         ? authorization.substring(prefix.length).trim()
         : null;
-    final userId = token == null ? null : _tokens[token];
-    if (userId == null) {
+    final userId = token == null ? null : _tokenRe.firstMatch(token)?.group(1);
+    if (userId == null || !_users.any((u) => u['id'] == userId)) {
       throw _HttpError(401, 'UNAUTHORIZED', 'Faça login para continuar.');
     }
     return userId;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../design_system/tokens/app_colors.dart';
 import '../../design_system/tokens/app_typography.dart';
+import '../../design_system/tokens/app_radius.dart';
 
 class AppTheme {
   AppTheme._();
@@ -44,15 +45,15 @@ class AppTheme {
           vertical: 16,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),

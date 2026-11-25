@@ -4,6 +4,7 @@ import '../models/availability.dart';
 import '../models/doctor.dart';
 import '../models/register_request.dart';
 import '../models/specialty.dart';
+import '../models/user.dart';
 
 /// Contrato da API do SaúdeJá (ver docs/API.md).
 ///
@@ -19,6 +20,11 @@ abstract interface class ApiService {
 
   /// POST /auth/register. Já devolve a sessão (usuário entra logado).
   Future<AuthSession> register(RegisterRequest request);
+
+  /// Usa um token salvo antes (ao reabrir o app) e confere com
+  /// GET /users/me. Se o token não valer mais, descarta e lança
+  /// ApiException (401).
+  Future<User> restoreSession(String token);
 
   /// Descarta o token guardado (sem chamada à API).
   void logout();

@@ -23,4 +23,10 @@ class AppColors {
   // Elementos
   static const Color border = Color(0xFFE1EBE6);
   static const Color disabled = Color(0xFFB8C8C0);
+
+  /// Texto e ícones sobre a cor principal (botões, item escolhido).
+  static const Color onPrimary = Color(0xFFFFFFFF);
+
+  /// Estrela da nota dos médicos.
+  static const Color rating = Color(0xFFF5B301);
 }

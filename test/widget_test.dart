@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saude_ja/core/routes/app_routes.dart';
+import 'package:saude_ja/data/repositories/auth_repository.dart';
+import 'package:saude_ja/data/services/session_storage.dart';
 import 'package:saude_ja/design_system/components/app_bottom_navigation.dart';
 import 'package:saude_ja/design_system/components/appointment_card.dart';
 import 'package:saude_ja/design_system/components/date_chip.dart';
@@ -21,6 +23,37 @@ void main() {
     await tester.tap(finder);
     await tester.pumpAndSettle();
   }
+
+  testWidgets('com sessão salva, abre direto na Home', (tester) async {
+    final api = createTestApi();
+    final storage = InMemorySessionStorage();
+    await tester.runAsync(() async {
+      // Login feito numa "abertura anterior" do app.
+      await AuthRepository(
+        createTestApi(),
+        storage,
+      ).login(email: 'maria@saudeja.com', password: '123456');
+    });
+    // Restaura no relógio do teste (como o main() faz ao abrir o app),
+    // avançando o tempo até terminar.
+    final auth = AuthRepository(api, storage);
+    var restored = false;
+    auth.restoreSession().then((_) => restored = true);
+    while (!restored) {
+      await tester.pump(const Duration(milliseconds: 10));
+    }
+
+    await tester.pumpWidget(
+      SaudeJaApp(
+        api: api,
+        auth: auth,
+        initialRoute: auth.isLoggedIn ? AppRoutes.home : AppRoutes.login,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Olá, Maria'), findsOneWidget);
+  });
 
   testWidgets('abre na tela de Login', (tester) async {
     await tester.pumpWidget(SaudeJaApp(api: createTestApi()));
