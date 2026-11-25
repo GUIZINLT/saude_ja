@@ -42,7 +42,22 @@ jobs:
 
       # Os testes visuais rodam no job do Windows (abaixo).
       - name: Testes do app (com cobertura)
-        run: flutter test --coverage --exclude-tags golden --reporter github
+        run: >-
+          flutter test --coverage --exclude-tags golden --reporter github
+          --file-reporter expanded:test-report.txt
+
+      # Os detalhes de uma falha (logs) só aparecem para quem está logado no
+      # GitHub. Este passo publica o trecho do erro como aviso, que é
+      # visível para qualquer pessoa.
+      - name: Detalhes das falhas dos testes
+        if: failure()
+        run: |
+          [ -f test-report.txt ] || exit 0
+          grep -n -E -A40 "\[E\]|EXCEPTION CAUGHT|Bad state|Error:" test-report.txt \
+            | head -120 > falhas.txt || true
+          # Quebras de linha viram %0A para caber num único aviso.
+          msg=$(tr -d '\r' < falhas.txt | sed -e 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+          echo "::error title=Detalhes das falhas::${msg}"
 
       - name: Testes do design system (contraste e demais)
         working-directory: packages/saude_ja_design_system

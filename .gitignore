@@ -46,3 +46,7 @@ app.*.map.json
 
 # Diferenças geradas quando um teste visual falha
 **/failures/
+
+# Relatório dos testes gerado no CI
+test-report.txt
+falhas.txt
