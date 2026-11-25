@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/app_colors.dart';
-import '../tokens/app_spacing.dart';
 import '../tokens/app_radius.dart';
+import '../tokens/app_spacing.dart';
 import '../tokens/app_typography.dart';
 
 class SpecialtyCard extends StatelessWidget {

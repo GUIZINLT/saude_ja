@@ -94,11 +94,18 @@ void main() {
   testWidgets('05 agendamento', (tester) async {
     await login(tester);
     await tap(tester, find.widgetWithText(DoctorCard, 'Dra. Helena Ribeiro'));
+    await tap(tester, find.widgetWithText(FilledButton, 'Agendar consulta'));
     // Qua, 25: 08:30 bloqueado na agenda e 09:30 escolhido, como no
     // protótipo.
     await tap(tester, find.widgetWithText(DateChip, '25'));
     await tap(tester, find.widgetWithText(TimeSlotButton, '09:30'));
     await shoot(tester, '05_agendamento');
+  });
+
+  testWidgets('11 detalhes do médico', (tester) async {
+    await login(tester);
+    await tap(tester, find.widgetWithText(DoctorCard, 'Dra. Helena Ribeiro'));
+    await shoot(tester, '11_medico');
   });
 
   testWidgets('06 consultas', (tester) async {
@@ -119,13 +126,23 @@ void main() {
     await shoot(tester, '08_perfil');
   });
 
+  // O Sample App tem um skeleton animado; com "reduzir animações" ele fica
+  // parado e o print sai sempre igual.
+  void stillAnimations(WidgetTester tester) {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+  }
+
   testWidgets('09 design system', (tester) async {
+    stillAnimations(tester);
     await open(tester, route: AppRoutes.designSystem);
     await shoot(tester, '09_design_system');
   });
 
   testWidgets('10 design system completo', (tester) async {
     // Tela bem alta para caber o Sample App inteiro numa imagem só.
+    stillAnimations(tester);
     await open(tester, route: AppRoutes.designSystem);
     tester.view.physicalSize = const Size(390, 3150) * _pixelRatio;
     await tester.pumpAndSettle();

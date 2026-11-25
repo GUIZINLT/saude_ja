@@ -4,6 +4,7 @@ import '../components/app_bottom_navigation.dart';
 import '../components/app_button.dart';
 import '../components/app_card.dart';
 import '../components/app_dialog.dart';
+import '../components/app_skeleton.dart';
 import '../components/app_text_field.dart';
 import '../components/appointment_card.dart';
 import '../components/date_chip.dart';
@@ -108,6 +109,13 @@ class _SampleAppState extends State<SampleApp> {
                 ..._cards(),
                 ..._scheduling(),
                 ..._dialogs(),
+                const _Section('Carregando'),
+                const Text(
+                  'AppSkeleton e SkeletonCard: brilho animado no formato do conteúdo',
+                  style: AppTypography.caption,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                const SkeletonCard(),
                 const _Section('Menu inferior'),
                 const Text(
                   'AppBottomNavigation: o menu no rodapé desta tela.',

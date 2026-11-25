@@ -24,7 +24,11 @@ class DateFormatter {
       '${d.year}';
 
   /// "Qui"
-  static String weekdayShort(DateTime d) => _weekdays[d.weekday - 1];
+  static String weekdayShort(DateTime d) => weekdayName(d.weekday);
+
+  /// Nome curto do dia pelo número (1 = Seg ... 7 = Dom), como em
+  /// DateTime.weekday.
+  static String weekdayName(int weekday) => _weekdays[weekday - 1];
 
   /// "Novembro 2026", título do seletor de datas.
   static String monthYear(DateTime d) {

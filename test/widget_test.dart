@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saude_ja/core/routes/app_routes.dart';
 import 'package:saude_ja/data/repositories/auth_repository.dart';
+import 'package:saude_ja/data/services/mock_api_service.dart';
 import 'package:saude_ja/data/services/session_storage.dart';
 import 'package:saude_ja/design_system/components/app_bottom_navigation.dart';
+import 'package:saude_ja/design_system/components/app_skeleton.dart';
 import 'package:saude_ja/design_system/components/appointment_card.dart';
 import 'package:saude_ja/design_system/components/date_chip.dart';
 import 'package:saude_ja/design_system/components/doctor_card.dart';
@@ -38,7 +42,7 @@ void main() {
     // avançando o tempo até terminar.
     final auth = AuthRepository(api, storage);
     var restored = false;
-    auth.restoreSession().then((_) => restored = true);
+    unawaited(auth.restoreSession().then((_) => restored = true));
     while (!restored) {
       await tester.pump(const Duration(milliseconds: 10));
     }
@@ -154,6 +158,19 @@ void main() {
         .first;
     await tester.scrollUntilVisible(helena, 200, scrollable: homeList);
     await tapAndSettle(tester, helena);
+
+    // Detalhes do médico.
+    expect(find.text('Sobre'), findsOneWidget);
+    expect(find.text('CRM/TO 12345'), findsOneWidget);
+    expect(find.text('(128 avaliações)'), findsOneWidget);
+    expect(find.text('Seg, Ter, Qua, Qui, Sex'), findsOneWidget);
+    expect(find.text('Ter, 24 nov 2026 às 08:00'), findsOneWidget);
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(FilledButton, 'Agendar consulta'),
+    );
+
+    // Agendamento.
     expect(find.text('Agendar consulta'), findsOneWidget);
     expect(find.text('Novembro 2026'), findsOneWidget);
     expect(find.byType(DateChip), findsNWidgets(5));
@@ -188,6 +205,56 @@ void main() {
 
     expect(find.widgetWithText(FilledButton, 'Entrar'), findsOneWidget);
     expect(find.text('Olá, Maria'), findsNothing);
+  });
+
+  testWidgets('Home mostra o carregamento animado e depois o conteúdo', (
+    tester,
+  ) async {
+    // API com atraso, para dar tempo de ver o carregamento.
+    final api = MockApiService(
+      latency: const Duration(milliseconds: 300),
+      backend: createTestBackend(),
+    );
+    await tester.pumpWidget(SaudeJaApp(api: api));
+    await tester.enterText(field('E-mail'), 'maria@saudeja.com');
+    await tester.enterText(field('Senha'), '123456');
+    await tester.tap(find.widgetWithText(FilledButton, 'Entrar'));
+    await tester.pump(const Duration(milliseconds: 310)); // resposta do login
+    await tester.pump(); // abre a Home, que começa a carregar
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(SkeletonCard), findsWidgets);
+
+    await tester.pumpAndSettle();
+    expect(find.byType(SkeletonCard), findsNothing);
+    expect(find.text('Qui, 26 nov 2026'), findsOneWidget);
+  });
+
+  testWidgets('remarcar consulta pela aba Consultas', (tester) async {
+    await tester.pumpWidget(SaudeJaApp(api: createTestApi()));
+    await tester.enterText(field('E-mail'), 'maria@saudeja.com');
+    await tester.enterText(field('Senha'), '123456');
+    await tapAndSettle(tester, find.widgetWithText(FilledButton, 'Entrar'));
+
+    await tapAndSettle(tester, find.text('Consultas'));
+    expect(find.text('Qui, 26 nov 2026'), findsOneWidget);
+    await tapAndSettle(tester, find.widgetWithText(TextButton, 'Remarcar'));
+
+    expect(find.text('Remarcar consulta'), findsOneWidget);
+    expect(find.textContaining('Data atual: Qui, 26 nov 2026'), findsOneWidget);
+    await tapAndSettle(tester, find.widgetWithText(DateChip, '27'));
+    await tapAndSettle(tester, find.widgetWithText(TimeSlotButton, '10:00'));
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(FilledButton, 'Confirmar nova data'),
+    );
+
+    expect(find.text('Consulta remarcada!'), findsOneWidget);
+    await tapAndSettle(tester, find.widgetWithText(FilledButton, 'Voltar'));
+
+    expect(find.text('Minhas consultas'), findsOneWidget);
+    expect(find.text('Sex, 27 nov 2026'), findsOneWidget);
+    expect(find.text('Às 10:00'), findsOneWidget);
+    expect(find.text('Consulta remarcada.'), findsOneWidget);
   });
 
   testWidgets('cancelar em Consultas reflete no Histórico e na Home', (
@@ -235,6 +302,12 @@ void main() {
   });
 
   testWidgets('Sample App do design system continua acessível', (tester) async {
+    // Com "reduzir animações" ligado, o skeleton da vitrine fica parado
+    // (e o pumpAndSettle consegue terminar).
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+
     await tester.pumpWidget(
       SaudeJaApp(api: createTestApi(), initialRoute: AppRoutes.designSystem),
     );

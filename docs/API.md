@@ -25,6 +25,7 @@ API REST do app SaúdeJá (agendamento de consultas). Esta documentação descre
 | POST | [`/appointments`](#post-appointments) | **sim** | Agendamento (Confirmar agendamento) |
 | GET | [`/appointments`](#get-appointments) | **sim** | Home (próxima consulta), Consultas, Histórico |
 | PATCH | [`/appointments/{id}/cancel`](#patch-appointmentsidcancel) | **sim** | Consultas |
+| PATCH | [`/appointments/{id}/reschedule`](#patch-appointmentsidreschedule) | **sim** | Consultas (Remarcar) |
 
 ## Erros
 
@@ -463,6 +464,39 @@ Cancela uma consulta confirmada. O horário volta a ficar disponível para outro
 |---|---|---|
 | 404 | `APPOINTMENT_NOT_FOUND` | não existe ou é de outro paciente |
 | 409 | `APPOINTMENT_ALREADY_CANCELLED` | já estava cancelada |
+| 409 | `APPOINTMENT_COMPLETED` | consulta já realizada |
+| 401 | `UNAUTHORIZED` | sem login |
+
+### PATCH /appointments/{id}/reschedule
+
+Troca a data e o horário de uma consulta confirmada, com o mesmo médico. É uma operação só: se o novo horário não estiver livre, a consulta continua como estava (o paciente nunca fica sem consulta, como aconteceria cancelando e agendando de novo). O horário antigo volta a ficar disponível.
+
+**Request**
+
+```json
+{
+  "date": "2026-11-27",
+  "time": "10:00"
+}
+```
+
+| Campo | Tipo | Obrigatório |
+|---|---|---|
+| `date` | string `AAAA-MM-DD` | sim |
+| `time` | string `HH:mm` | sim, precisa ser um horário da agenda do médico |
+
+**Response `200 OK`**: objeto `Appointment` com a nova `date`/`time` e o mesmo `id`.
+
+**Erros**
+
+| Status | `code` | Quando |
+|---|---|---|
+| 422 | `VALIDATION_ERROR` | `date` ou `time` fora do formato |
+| 422 | `DATE_IN_PAST` | nova data e hora já passaram |
+| 404 | `APPOINTMENT_NOT_FOUND` | não existe ou é de outro paciente |
+| 409 | `SLOT_UNAVAILABLE` | horário ocupado, bloqueado, fora da agenda ou igual ao atual |
+| 409 | `PATIENT_TIME_CONFLICT` | o paciente já tem outra consulta nesse dia e horário |
+| 409 | `APPOINTMENT_ALREADY_CANCELLED` | consulta cancelada |
 | 409 | `APPOINTMENT_COMPLETED` | consulta já realizada |
 | 401 | `UNAUTHORIZED` | sem login |
 

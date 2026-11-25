@@ -21,11 +21,13 @@ Future<void> loadMockAssets() async {
   }
 }
 
-/// MockApiService sem atraso e com relógio fixo (ter, 24/11/2026 07:00).
-MockApiService createTestApi() => MockApiService(
-  latency: Duration.zero,
-  backend: MockBackend(
-    loader: (f) async => _cache[f]!,
-    clock: () => DateTime(2026, 11, 24, 7),
-  ),
+/// MockBackend com os dados de assets/mock e relógio fixo
+/// (ter, 24/11/2026 07:00).
+MockBackend createTestBackend() => MockBackend(
+  loader: (f) async => _cache[f]!,
+  clock: () => DateTime(2026, 11, 24, 7),
 );
+
+/// MockApiService sem atraso, sobre o [createTestBackend].
+MockApiService createTestApi() =>
+    MockApiService(latency: Duration.zero, backend: createTestBackend());

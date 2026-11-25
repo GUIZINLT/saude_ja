@@ -27,6 +27,13 @@ class AppointmentRepository {
   /// Cancela uma consulta confirmada e devolve a versão atualizada.
   Future<Appointment> cancel(String id) => _api.cancelAppointment(id);
 
+  /// Troca data e horário de uma consulta confirmada.
+  Future<Appointment> reschedule(
+    String id, {
+    required String date,
+    required String time,
+  }) => _api.rescheduleAppointment(id, date: date, time: time);
+
   /// A próxima consulta confirmada, ou null se não houver.
   Future<Appointment?> getNext() async {
     final upcoming = await getUpcoming();

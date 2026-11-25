@@ -10,16 +10,41 @@ import '../../../data/services/api_exception.dart';
 
 enum ScheduleStatus { loading, ready, error }
 
+/// Argumento da rota de Agendamento. Para agendar, basta o id do médico
+/// (String); para remarcar, use este objeto com a consulta atual.
+class ScheduleArgs {
+  final String doctorId;
+
+  /// Consulta que será remarcada (null = agendar uma nova).
+  final Appointment? reschedule;
+
+  const ScheduleArgs({required this.doctorId, this.reschedule});
+
+  /// Aceita os dois formatos de argumento da rota.
+  static ScheduleArgs? from(Object? arguments) => switch (arguments) {
+    final ScheduleArgs args => args,
+    final String doctorId => ScheduleArgs(doctorId: doctorId),
+    _ => null,
+  };
+}
+
 /// Estado da tela de Agendamento: médico, dias, horários e confirmação.
+/// Também serve para remarcar uma consulta ([rescheduling]).
 class ScheduleViewModel extends ChangeNotifier {
   ScheduleViewModel({
     required this.doctorId,
     required this._catalog,
     required this._appointments,
+    this.rescheduling,
   });
 
   /// Vem da navegação. É null se a tela foi aberta sem escolher um médico.
   final String? doctorId;
+
+  /// Consulta sendo remarcada, ou null ao agendar uma nova.
+  final Appointment? rescheduling;
+
+  bool get isRescheduling => rescheduling != null;
   final CatalogRepository _catalog;
   final AppointmentRepository _appointments;
 
@@ -118,11 +143,14 @@ class ScheduleViewModel extends ChangeNotifier {
     _submitError = null;
     _notify();
     try {
-      _created = await _appointments.create(
-        doctorId: doctorId!,
-        date: date,
-        time: time,
-      );
+      final current = rescheduling;
+      _created = current == null
+          ? await _appointments.create(
+              doctorId: doctorId!,
+              date: date,
+              time: time,
+            )
+          : await _appointments.reschedule(current.id, date: date, time: time);
       return true;
     } on ApiException catch (e) {
       _submitError = e.message;

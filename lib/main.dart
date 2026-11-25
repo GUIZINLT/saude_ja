@@ -7,13 +7,27 @@ import 'data/repositories/appointment_repository.dart';
 import 'data/repositories/auth_repository.dart';
 import 'data/repositories/catalog_repository.dart';
 import 'data/services/api_service.dart';
+import 'data/services/http_api_service.dart';
 import 'data/services/mock_api_service.dart';
 import 'data/services/session_storage.dart';
+
+/// Qual API usar, escolhida na hora de rodar:
+///   flutter run                                   -> mock dentro do app
+///   flutter run --dart-define=API=http            -> servidor HTTP
+///   --dart-define=API_URL=http://10.0.2.2:8080    -> outro endereço
+const _apiMode = String.fromEnvironment('API', defaultValue: 'mock');
+const _apiUrl = String.fromEnvironment(
+  'API_URL',
+  defaultValue: 'http://localhost:8080',
+);
+
+ApiService createApi() =>
+    _apiMode == 'http' ? HttpApiService(baseUrl: _apiUrl) : MockApiService();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final api = MockApiService();
+  final api = createApi();
   final auth = AuthRepository(api, await SharedPrefsSessionStorage.create());
   // Se o usuário já entrou antes, abre direto na Home.
   await auth.restoreSession();

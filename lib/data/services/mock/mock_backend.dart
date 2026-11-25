@@ -104,6 +104,12 @@ class MockBackend {
           return _createAppointment(_auth(authorization), _bodyMap(body));
         case ['appointments', final id, 'cancel'] when m == 'PATCH':
           return _cancelAppointment(_auth(authorization), id);
+        case ['appointments', final id, 'reschedule'] when m == 'PATCH':
+          return _rescheduleAppointment(
+            _auth(authorization),
+            id,
+            _bodyMap(body),
+          );
       }
       throw _HttpError(
         404,
@@ -443,6 +449,86 @@ class MockBackend {
     return MockResponse(200, _publicAppointment(appointment));
   }
 
+  /// Troca data e horário de uma consulta confirmada, numa operação só
+  /// (o paciente nunca fica sem consulta se o novo horário falhar).
+  MockResponse _rescheduleAppointment(
+    String userId,
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final date = _str(body['date']);
+    final time = _str(body['time']);
+    final fields = <String, String>{
+      if (_parseDate(date) == null)
+        'date': 'Data deve estar no formato AAAA-MM-DD.',
+      if (!_timeRe.hasMatch(time))
+        'time': 'Horário deve estar no formato HH:mm.',
+    };
+    if (fields.isNotEmpty) throw _validation(fields);
+
+    final appointment = _appointments
+        .where((a) => a['id'] == id && a['userId'] == userId)
+        .firstOrNull;
+    if (appointment == null) {
+      throw _HttpError(
+        404,
+        'APPOINTMENT_NOT_FOUND',
+        'Consulta não encontrada.',
+      );
+    }
+    switch (appointment['status']) {
+      case 'cancelled':
+        throw _HttpError(
+          409,
+          'APPOINTMENT_ALREADY_CANCELLED',
+          'Não é possível remarcar uma consulta cancelada.',
+        );
+      case 'completed':
+        throw _HttpError(
+          409,
+          'APPOINTMENT_COMPLETED',
+          'Não é possível remarcar uma consulta já realizada.',
+        );
+    }
+
+    final now = _clock();
+    if (_toDateTime(date, time).isBefore(now)) {
+      throw _HttpError(
+        422,
+        'DATE_IN_PAST',
+        'Não é possível remarcar para uma data ou horário que já passou.',
+      );
+    }
+    final doctorId = appointment['doctorId'] as String;
+    if (!_isSlotFree(doctorId, date, time, now)) {
+      // Inclui o caso de escolher o mesmo horário que já está marcado.
+      throw _HttpError(
+        409,
+        'SLOT_UNAVAILABLE',
+        'Este horário não está disponível. Escolha outro.',
+      );
+    }
+    final clash = _appointments.any(
+      (a) =>
+          a['id'] != id &&
+          a['userId'] == userId &&
+          a['status'] == 'confirmed' &&
+          a['date'] == date &&
+          a['time'] == time,
+    );
+    if (clash) {
+      throw _HttpError(
+        409,
+        'PATIENT_TIME_CONFLICT',
+        'Você já tem uma consulta neste dia e horário.',
+      );
+    }
+
+    appointment['date'] = date;
+    appointment['time'] = time;
+    return MockResponse(200, _publicAppointment(appointment));
+  }
+
   // ------------------------------------------------------------ auxiliares
 
   /// Consultas confirmadas cujo horário já passou viram "completed".
@@ -463,9 +549,9 @@ class MockBackend {
     if (!(schedule['weekdays'] as List).contains(day.weekday)) return false;
     if (!(schedule['slots'] as List).contains(time)) return false;
     if (_toDateTime(date, time).isBefore(now)) return false;
-    final blocked = (schedule['blocked'] as List).cast<Map>().any(
-      (b) => b['date'] == date && b['time'] == time,
-    );
+    final blocked = (schedule['blocked'] as List)
+        .cast<Map<String, dynamic>>()
+        .any((b) => b['date'] == date && b['time'] == time);
     if (blocked) return false;
     return !_appointments.any(
       (a) =>
@@ -490,7 +576,7 @@ class MockBackend {
         'doctorId': doctorId,
         'weekdays': <int>[],
         'slots': <String>[],
-        'blocked': <Map>[],
+        'blocked': <Map<String, dynamic>>[],
       };
 
   String? _specialtyName(Object? specialtyId) =>

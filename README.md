@@ -4,7 +4,7 @@
 
 <img src="assets/brand/icon.png" width="96" align="right" alt="Ícone do SaúdeJá">
 
-Aplicativo Flutter de **agendamento de consultas médicas**. O paciente cria a conta, encontra médicos por nome ou especialidade, escolhe data e horário, acompanha as consultas e pode cancelá-las.
+Aplicativo Flutter de **agendamento de consultas médicas**. O paciente cria a conta, encontra médicos por nome ou especialidade, escolhe data e horário, acompanha as consultas e pode remarcá-las ou cancelá-las.
 
 O projeto tem **design system próprio** (tokens, componentes e Sample App), **arquitetura MVVM** com `provider` e um **mock do backend** que segue a [documentação da API](docs/API.md). Assim, todas as telas funcionam sem servidor.
 
@@ -13,20 +13,22 @@ O projeto tem **design system próprio** (tokens, componentes e Sample App), **a
 | Login | Cadastro | Home |
 |:---:|:---:|:---:|
 | <img src="docs/screenshots/01_login.png" width="240"> | <img src="docs/screenshots/02_cadastro.png" width="240"> | <img src="docs/screenshots/03_home.png" width="240"> |
-| **Busca por especialidade** | **Agendamento** | **Consultas** |
-| <img src="docs/screenshots/04_busca.png" width="240"> | <img src="docs/screenshots/05_agendamento.png" width="240"> | <img src="docs/screenshots/06_consultas.png" width="240"> |
-| **Histórico** | **Perfil** | **Sample App do design system** |
-| <img src="docs/screenshots/07_historico.png" width="240"> | <img src="docs/screenshots/08_perfil.png" width="240"> | <img src="docs/screenshots/09_design_system.png" width="240"> |
+| **Busca por especialidade** | **Detalhes do médico** | **Agendamento** |
+| <img src="docs/screenshots/04_busca.png" width="240"> | <img src="docs/screenshots/11_medico.png" width="240"> | <img src="docs/screenshots/05_agendamento.png" width="240"> |
+| **Consultas** | **Histórico** | **Perfil** |
+| <img src="docs/screenshots/06_consultas.png" width="240"> | <img src="docs/screenshots/07_historico.png" width="240"> | <img src="docs/screenshots/08_perfil.png" width="240"> |
 
 ## Funcionalidades
 
-- **Login e cadastro**, com validação dos campos e mensagens de erro da API (e-mail já cadastrado, senha incorreta).
+- **Login e cadastro**, com validação dos campos, máscara de telefone e mensagens de erro da API (e-mail já cadastrado, senha incorreta).
 - **Home**: saudação, busca de médico ou especialidade, especialidades, próxima consulta e médicos em destaque.
+- **Detalhes do médico**: CRM, nota, avaliações, dias de atendimento e próximo horário livre.
 - **Agendamento**: próximos dias de atendimento do médico e horários livres, ocupados ou bloqueados. Se o horário for ocupado antes da confirmação, a grade se atualiza.
-- **Consultas**: consultas confirmadas, com cancelamento após confirmação.
+- **Consultas**: consultas confirmadas, com **remarcar** (troca data e horário numa operação só) e cancelar (após confirmação).
 - **Histórico**: consultas realizadas e canceladas.
 - **Perfil**: dados do paciente e saída da conta.
 - **Sessão salva**: ao reabrir o app (ou recarregar a página na web), o paciente continua logado.
+- **Carregamento animado** (skeleton) no formato do conteúdo; fica parado se o aparelho pedir menos animações.
 - **Ícone e tela de abertura** próprios, gerados a partir do design system.
 - Roda em **Android, iOS e web**.
 
@@ -41,16 +43,20 @@ View (tela)  ──lê estado / chama ações──▶  ViewModel (ChangeNotifie
                                                 ▼
                                 ApiService (interface)
                                                 │
+                                 JsonApiService (rotas e JSON)
+                                                │
                                    ┌────────────┴────────────┐
                                    ▼                         ▼
-                           MockApiService              (backend real,
-                           lê assets/mock/*.json        mesma interface)
+                           MockApiService             HttpApiService
+                           backend simulado           pela rede (HTTP),
+                           na memória                 qualquer servidor
+                                                      que siga docs/API.md
 ```
 
 - **Views** só desenham e repassam ações; não validam nem chamam a API.
 - **ViewModels** guardam o estado da tela (carregando, erro, dados) e as regras de apresentação.
 - **Repositories** reúnem as chamadas por assunto (autenticação, catálogo, consultas).
-- **ApiService** é o contrato da API. Hoje quem o implementa é o `MockApiService`; para usar um backend real, basta criar outra implementação e trocar uma linha no `main.dart`.
+- **ApiService** é o contrato da API. O `JsonApiService` implementa as rotas uma vez só; o `MockApiService` e o `HttpApiService` mudam apenas como a requisição é enviada. A escolha é feita na hora de rodar (veja abaixo).
 
 ```
 lib/
@@ -109,6 +115,18 @@ O **Sample App** (`flutter run -t lib/main_design_system.dart`) mostra os tokens
 dart run tool/mock_server.dart
 ```
 
+- Com o servidor rodando, o app pode usá-lo **pela rede** em vez do mock interno:
+
+```powershell
+flutter run -d chrome --dart-define=API=http
+```
+
+No emulador Android, o computador fica em `10.0.2.2`:
+
+```powershell
+flutter run --dart-define=API=http --dart-define=API_URL=http://10.0.2.2:8080
+```
+
 **Usuário de teste:** `maria@saudeja.com` / `123456`
 
 ## Como rodar
@@ -145,9 +163,30 @@ flutter analyze
 flutter test
 ```
 
-São 65 testes: regras do mock, sessão salva, ViewModels (login, cadastro, Home, agendamento, consultas e histórico) e os fluxos completos nas telas.
+São 90 testes, com **cobertura de 92%**:
 
-A cada push, o **GitHub Actions** ([.github/workflows/ci.yml](.github/workflows/ci.yml)) confere formatação, análise estática, testes e o build web. O selo no topo deste README mostra o resultado.
+- **Regras do mock** e da API HTTP (requisições, erros, falta de rede).
+- **ViewModels**: login, cadastro, sessão salva, Home, detalhes do médico, agendamento, remarcação, consultas e histórico.
+- **Fluxos completos nas telas**: do login até agendar, remarcar e cancelar.
+- **Testes visuais** dos componentes do design system: cada componente é comparado com uma imagem de referência em `test/golden/goldens/`. Depois de mudar um componente de propósito:
+
+```powershell
+flutter test test/golden --update-goldens
+```
+
+Para ver a cobertura por pasta:
+
+```powershell
+flutter test --coverage
+```
+
+```powershell
+dart run tool/coverage_summary.dart
+```
+
+A análise estática usa regras mais rígidas que o padrão do Flutter (tipagem estrita, `const`, aspas simples, ordem de imports, futures não aguardados), definidas em [analysis_options.yaml](analysis_options.yaml).
+
+A cada push, o **GitHub Actions** ([.github/workflows/ci.yml](.github/workflows/ci.yml)) confere formatação, análise estática, testes, cobertura mínima de 85% e o build web. O selo no topo deste README mostra o resultado, e a tabela de cobertura aparece no resumo de cada execução.
 
 Os prints deste README são gerados por teste, sempre com os mesmos dados e data. Para atualizar depois de mudar alguma tela:
 
@@ -175,6 +214,7 @@ dart run flutter_native_splash:create
 - Flutter e Dart
 - `provider` (ChangeNotifier) para MVVM
 - `shared_preferences` para salvar a sessão
+- `http` para a API pela rede
 - `flutter_launcher_icons` e `flutter_native_splash` para ícone e tela de abertura
 - GitHub Actions para integração contínua
 - Material 3

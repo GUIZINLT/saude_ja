@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
+import '../../../core/utils/phone_formatter.dart';
 import '../../../data/models/user.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../design_system/components/app_button.dart';
@@ -42,7 +43,10 @@ class ProfileView extends StatelessWidget {
               const Divider(height: AppSpacing.lg),
               _InfoRow(icon: Icons.email_outlined, text: user?.email ?? '-'),
               const Divider(height: AppSpacing.lg),
-              _InfoRow(icon: Icons.phone_outlined, text: user?.phone ?? '-'),
+              _InfoRow(
+                icon: Icons.phone_outlined,
+                text: user == null ? '-' : PhoneFormatter.format(user.phone),
+              ),
             ],
           ),
         ),

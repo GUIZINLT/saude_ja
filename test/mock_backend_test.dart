@@ -11,7 +11,7 @@ void main() {
   setUp(() {
     api = MockBackend(
       loader: (file) => File('assets/mock/$file').readAsString(),
-      clock: () => DateTime(2026, 11, 24, 7, 0),
+      clock: () => DateTime(2026, 11, 24, 7),
     );
   });
 
@@ -24,7 +24,12 @@ void main() {
     return 'Bearer ${(res.body as Map)['token']}';
   }
 
-  Map error(MockResponse res) => (res.body as Map)['error'] as Map;
+  Map<String, dynamic> obj(Object? value) => value! as Map<String, dynamic>;
+
+  List<Map<String, dynamic>> list(MockResponse res) =>
+      (res.body! as List).cast<Map<String, dynamic>>();
+
+  Map<String, dynamic> error(MockResponse res) => obj(obj(res.body)['error']);
 
   group('auth', () {
     test('login válido devolve token e usuário sem senha', () async {
@@ -112,7 +117,7 @@ void main() {
       final auth = await loginToken();
       final restarted = MockBackend(
         loader: (file) => File('assets/mock/$file').readAsString(),
-        clock: () => DateTime(2026, 11, 24, 7, 0),
+        clock: () => DateTime(2026, 11, 24, 7),
       );
       final res = await restarted.handle(
         'GET',
@@ -156,14 +161,14 @@ void main() {
   group('especialidades e médicos', () {
     test('lista as 6 especialidades com contagem de médicos', () async {
       final res = await api.handle('GET', '/specialties');
-      final list = res.body as List;
-      expect(list, hasLength(6));
-      expect(list.first['doctorCount'], 2); // Cardiologia
+      final specialties = list(res);
+      expect(specialties, hasLength(6));
+      expect(specialties.first['doctorCount'], 2); // Cardiologia
     });
 
     test('filtros de médicos', () async {
       final featured = await api.handle('GET', '/doctors?featured=true');
-      expect((featured.body as List).map((d) => d['name']), [
+      expect(list(featured).map((d) => d['name']), [
         'Dra. Helena Ribeiro',
         'Dr. Carlos Mendes',
       ]);
@@ -181,7 +186,7 @@ void main() {
         '/doctors',
         query: {'q': 'HELENA'},
       );
-      expect((search.body as List).single['specialtyName'], 'Cardiologia');
+      expect(list(search).single['specialtyName'], 'Cardiologia');
     });
 
     test('médico inexistente -> 404', () async {
@@ -197,7 +202,7 @@ void main() {
         query: {'from': '2026-11-24', 'days': '5'},
       );
       expect(res.statusCode, 200);
-      final days = (res.body as Map)['days'] as List;
+      final days = (obj(res.body)['days'] as List).cast<Map<String, dynamic>>();
       // Seg a sex: pula sábado e domingo, como no protótipo.
       expect(days.map((d) => d['date']), [
         '2026-11-24',
@@ -208,8 +213,9 @@ void main() {
       ]);
 
       bool available(String date, String time) =>
-          ((days.firstWhere((d) => d['date'] == date)['slots'] as List)
-                  .firstWhere((s) => s['time'] == time))['available']
+          (days.firstWhere((d) => d['date'] == date)['slots'] as List)
+                  .cast<Map<String, dynamic>>()
+                  .firstWhere((s) => s['time'] == time)['available']
               as bool;
 
       expect(available('2026-11-24', '08:30'), isFalse); // bloqueado
@@ -280,7 +286,7 @@ void main() {
     test('lista e filtra por status', () async {
       final auth = await loginToken();
       final all = await api.handle('GET', '/appointments', authorization: auth);
-      expect((all.body as List).map((a) => a['id']), ['a2', 'a3', 'a1']);
+      expect(list(all).map((a) => a['id']), ['a2', 'a3', 'a1']);
 
       final history = await api.handle(
         'GET',
@@ -288,7 +294,7 @@ void main() {
         query: {'status': 'completed,cancelled', 'order': 'desc'},
         authorization: auth,
       );
-      expect((history.body as List).map((a) => a['id']), ['a3', 'a2']);
+      expect(list(history).map((a) => a['id']), ['a3', 'a2']);
     });
 
     test('cancelar libera o horário; não cancela duas vezes', () async {
@@ -321,13 +327,68 @@ void main() {
         '/doctors/d1/availability',
         query: {'from': '2026-11-26', 'days': '1'},
       );
-      final day = ((slots.body as Map)['days'] as List).single as Map;
+      final day = obj((obj(slots.body)['days'] as List).single);
       expect(
-        (day['slots'] as List).firstWhere(
+        (day['slots'] as List).cast<Map<String, dynamic>>().firstWhere(
           (s) => s['time'] == '09:30',
         )['available'],
         isTrue,
       );
+    });
+
+    test('remarcar troca data e horário e libera o antigo', () async {
+      final auth = await loginToken();
+      final res = await api.handle(
+        'PATCH',
+        '/appointments/a1/reschedule',
+        body: {'date': '2026-11-27', 'time': '10:00'},
+        authorization: auth,
+      );
+      expect(res.statusCode, 200);
+      expect(obj(res.body)['date'], '2026-11-27');
+      expect(obj(res.body)['time'], '10:00');
+      expect(obj(res.body)['status'], 'confirmed');
+
+      // O horário antigo (26/11 09:30) volta a ficar livre.
+      final slots = await api.handle(
+        'GET',
+        '/doctors/d1/availability',
+        query: {'from': '2026-11-26', 'days': '1'},
+      );
+      final day = obj((obj(slots.body)['days'] as List).single);
+      expect(
+        (day['slots'] as List).cast<Map<String, dynamic>>().firstWhere(
+          (s) => s['time'] == '09:30',
+        )['available'],
+        isTrue,
+      );
+    });
+
+    test('remarcar: mesmo horário, passado, cancelada e inexistente', () async {
+      final auth = await loginToken();
+      Future<MockResponse> reschedule(String id, String date, String time) =>
+          api.handle(
+            'PATCH',
+            '/appointments/$id/reschedule',
+            body: {'date': date, 'time': time},
+            authorization: auth,
+          );
+
+      final same = await reschedule('a1', '2026-11-26', '09:30');
+      expect(same.statusCode, 409);
+      expect(error(same)['code'], 'SLOT_UNAVAILABLE');
+
+      final past = await reschedule('a1', '2026-11-20', '09:00');
+      expect(error(past)['code'], 'DATE_IN_PAST');
+
+      final cancelled = await reschedule('a3', '2026-11-27', '10:00');
+      expect(error(cancelled)['code'], 'APPOINTMENT_ALREADY_CANCELLED');
+
+      final missing = await reschedule('a999', '2026-11-27', '10:00');
+      expect(missing.statusCode, 404);
+
+      final invalid = await reschedule('a1', '27/11', '10h');
+      expect(invalid.statusCode, 422);
     });
 
     test('rota desconhecida -> 404', () async {

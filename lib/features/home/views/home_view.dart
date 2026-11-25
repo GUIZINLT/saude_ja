@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,11 +11,13 @@ import '../../../data/models/doctor.dart';
 import '../../../data/models/specialty.dart';
 import '../../../design_system/components/app_button.dart';
 import '../../../design_system/components/app_card.dart';
+import '../../../design_system/components/app_skeleton.dart';
 import '../../../design_system/components/app_text_field.dart';
 import '../../../design_system/components/appointment_card.dart';
 import '../../../design_system/components/doctor_card.dart';
 import '../../../design_system/components/specialty_card.dart';
 import '../../../design_system/tokens/app_colors.dart';
+import '../../../design_system/tokens/app_radius.dart';
 import '../../../design_system/tokens/app_spacing.dart';
 import '../../../design_system/tokens/app_typography.dart';
 import '../viewmodels/home_viewmodel.dart';
@@ -41,15 +45,16 @@ class _HomeViewState extends State<HomeView> {
 
   void _selectSpecialty(HomeViewModel vm, Specialty specialty) {
     _searchController.text = specialty.name;
-    vm.selectSpecialty(specialty);
+    unawaited(vm.selectSpecialty(specialty));
   }
 
-  /// Abre o Agendamento; se a consulta for marcada, atualiza a Home.
-  Future<void> _openSchedule(HomeViewModel vm, Doctor doctor) async {
+  /// Abre os detalhes do médico; se uma consulta for marcada a partir
+  /// dali, atualiza a Home.
+  Future<void> _openDoctor(HomeViewModel vm, Doctor doctor) async {
     final scheduled = await Navigator.of(
       context,
-    ).pushNamed(AppRoutes.schedule, arguments: doctor.id);
-    if (scheduled == true) vm.load();
+    ).pushNamed(AppRoutes.doctor, arguments: doctor.id);
+    if (scheduled == true) unawaited(vm.load());
   }
 
   void _clearSearch(HomeViewModel vm) {
@@ -93,10 +98,7 @@ class _HomeViewState extends State<HomeView> {
                       : null,
                 ),
                 if (vm.isSearching)
-                  _SearchResults(
-                    vm: vm,
-                    onDoctorTap: (d) => _openSchedule(vm, d),
-                  )
+                  _SearchResults(vm: vm, onDoctorTap: (d) => _openDoctor(vm, d))
                 else
                   ..._buildSections(vm),
               ],
@@ -110,9 +112,24 @@ class _HomeViewState extends State<HomeView> {
   List<Widget> _buildSections(HomeViewModel vm) {
     switch (vm.status) {
       case HomeStatus.loading:
+        // Mesmo formato das seções, para a tela não "pular" ao carregar.
         return const [
-          SizedBox(height: AppSpacing.xxl),
-          Center(child: CircularProgressIndicator()),
+          _SectionTitle('Especialidades'),
+          Row(
+            children: [
+              Expanded(child: AppSkeleton(height: 112, radius: AppRadius.lg)),
+              SizedBox(width: AppSpacing.sm),
+              Expanded(child: AppSkeleton(height: 112, radius: AppRadius.lg)),
+              SizedBox(width: AppSpacing.sm),
+              Expanded(child: AppSkeleton(height: 112, radius: AppRadius.lg)),
+            ],
+          ),
+          _SectionTitle('Próxima consulta'),
+          SkeletonCard(showAvatar: false, lines: 4),
+          _SectionTitle('Médicos em destaque'),
+          SkeletonCard(),
+          SizedBox(height: AppSpacing.sm),
+          SkeletonCard(),
         ];
       case HomeStatus.error:
         return [
@@ -150,7 +167,7 @@ class _HomeViewState extends State<HomeView> {
           const _SectionTitle('Médicos em destaque'),
           _DoctorList(
             doctors: vm.featuredDoctors,
-            onTap: (d) => _openSchedule(vm, d),
+            onTap: (d) => _openDoctor(vm, d),
           ),
         ];
     }
@@ -244,9 +261,12 @@ class _SearchResults extends StatelessWidget {
   Widget build(BuildContext context) {
     final Widget content;
     if (vm.isSearchLoading) {
-      content = const Padding(
-        padding: EdgeInsets.only(top: AppSpacing.xl),
-        child: Center(child: CircularProgressIndicator()),
+      content = const Column(
+        children: [
+          SkeletonCard(),
+          SizedBox(height: AppSpacing.sm),
+          SkeletonCard(),
+        ],
       );
     } else if (vm.searchError != null) {
       content = Text(vm.searchError!, style: AppTypography.body);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTextField extends StatelessWidget {
   /// Rótulo do campo. Pode ser omitido em campos de busca, que mostram só
@@ -12,6 +13,9 @@ class AppTextField extends StatelessWidget {
   final bool obscureText;
   final TextEditingController? controller;
   final TextInputType? keyboardType;
+
+  /// Máscaras e filtros de digitação (ex.: telefone).
+  final List<TextInputFormatter>? inputFormatters;
 
   /// Mensagem de erro mostrada abaixo do campo (null = sem erro).
   final String? errorText;
@@ -30,6 +34,7 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.controller,
     this.keyboardType,
+    this.inputFormatters,
     this.errorText,
     this.onChanged,
     this.onSubmitted,
@@ -44,6 +49,7 @@ class AppTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       onChanged: onChanged,
       onFieldSubmitted: onSubmitted,
       textInputAction: textInputAction,

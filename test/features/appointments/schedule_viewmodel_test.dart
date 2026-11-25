@@ -109,6 +109,36 @@ void main() {
     },
   );
 
+  test('modo remarcar troca a data da consulta existente', () async {
+    final repository = AppointmentRepository(api);
+    final current = (await repository.getUpcoming()).single; // a1, 26/11
+    final vm = ScheduleViewModel(
+      doctorId: current.doctorId,
+      rescheduling: current,
+      catalog: CatalogRepository(api),
+      appointments: repository,
+    );
+    await vm.load();
+    expect(vm.isRescheduling, isTrue);
+
+    vm
+      ..selectDate('2026-11-27')
+      ..selectTime('10:00');
+    expect(await vm.confirm(), isTrue);
+    expect(vm.createdAppointment?.id, current.id);
+
+    final upcoming = await repository.getUpcoming();
+    expect(upcoming.single.id, current.id); // não criou outra consulta
+    expect(upcoming.single.date, '2026-11-27');
+    expect(upcoming.single.time, '10:00');
+  });
+
+  test('ScheduleArgs aceita id ou objeto', () {
+    expect(ScheduleArgs.from('d1')?.doctorId, 'd1');
+    expect(ScheduleArgs.from('d1')?.reschedule, isNull);
+    expect(ScheduleArgs.from(null), isNull);
+  });
+
   test('médico inexistente e médico não informado', () async {
     final unknown = create('d999');
     await unknown.load();

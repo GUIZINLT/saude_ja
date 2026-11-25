@@ -3,14 +3,17 @@ import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../data/models/appointment.dart';
 import '../../../data/models/availability.dart';
 import '../../../data/models/doctor.dart';
 import '../../../design_system/components/app_button.dart';
 import '../../../design_system/components/app_card.dart';
 import '../../../design_system/components/app_dialog.dart';
+import '../../../design_system/components/app_skeleton.dart';
 import '../../../design_system/components/date_chip.dart';
 import '../../../design_system/components/time_slot_button.dart';
 import '../../../design_system/tokens/app_colors.dart';
+import '../../../design_system/tokens/app_radius.dart';
 import '../../../design_system/tokens/app_spacing.dart';
 import '../../../design_system/tokens/app_typography.dart';
 import '../../auth/views/widgets/form_error_banner.dart';
@@ -38,11 +41,11 @@ class ScheduleView extends StatelessWidget {
     final a = vm.createdAppointment!;
     await AppDialog.show(
       context,
-      title: 'Consulta agendada!',
+      title: vm.isRescheduling ? 'Consulta remarcada!' : 'Consulta agendada!',
       message:
           '${a.doctorName}\n'
           '${DateFormatter.shortDate(a.startsAt)} às ${a.time}',
-      buttonLabel: 'Voltar para a Home',
+      buttonLabel: vm.isRescheduling ? 'Voltar' : 'Voltar para a Home',
     );
     if (context.mounted) _goBack(context, true);
   }
@@ -76,10 +79,12 @@ class ScheduleView extends StatelessWidget {
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () => _goBack(context),
                       ),
-                      const SizedBox(width: AppSpacing.md - 4),
-                      const Expanded(
+                      const SizedBox(width: AppSpacing.ms),
+                      Expanded(
                         child: Text(
-                          'Agendar consulta',
+                          vm.isRescheduling
+                              ? 'Remarcar consulta'
+                              : 'Agendar consulta',
                           style: AppTypography.heading,
                         ),
                       ),
@@ -98,7 +103,44 @@ class ScheduleView extends StatelessWidget {
   Widget _buildBody(BuildContext context, ScheduleViewModel vm) {
     switch (vm.status) {
       case ScheduleStatus.loading:
-        return const Center(child: CircularProgressIndicator());
+        return Semantics(
+          label: 'Carregando',
+          child: ListView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            children: [
+              const SkeletonCard(lines: 2),
+              const SizedBox(height: AppSpacing.lg),
+              const AppSkeleton(width: 160, height: 20),
+              const SizedBox(height: AppSpacing.ms),
+              Wrap(
+                spacing: AppSpacing.sm,
+                children: [
+                  for (var i = 0; i < 5; i++)
+                    const AppSkeleton(
+                      width: 58,
+                      height: 72,
+                      radius: AppRadius.chip,
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              const AppSkeleton(width: 200, height: 20),
+              const SizedBox(height: AppSpacing.ms),
+              for (var i = 0; i < 2; i++) ...[
+                const Row(
+                  children: [
+                    Expanded(child: AppSkeleton(height: 44)),
+                    SizedBox(width: AppSpacing.ms),
+                    Expanded(child: AppSkeleton(height: 44)),
+                    SizedBox(width: AppSpacing.ms),
+                    Expanded(child: AppSkeleton(height: 44)),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.ms),
+              ],
+            ],
+          ),
+        );
       case ScheduleStatus.error:
         return Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -135,6 +177,10 @@ class ScheduleView extends StatelessWidget {
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 children: [
                   _DoctorHeader(doctor: vm.doctor!),
+                  if (vm.rescheduling case final current?) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    _CurrentAppointment(appointment: current),
+                  ],
                   _SectionTitle('Escolha a data', trailing: vm.monthLabel),
                   _DatePicker(vm: vm),
                   const _SectionTitle('Horários disponíveis'),
@@ -156,7 +202,9 @@ class ScheduleView extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                   ],
                   AppButton(
-                    label: 'Confirmar agendamento',
+                    label: vm.isRescheduling
+                        ? 'Confirmar nova data'
+                        : 'Confirmar agendamento',
                     isLoading: vm.isSubmitting,
                     onPressed: vm.canConfirm ? () => _confirm(context) : null,
                   ),
@@ -197,6 +245,37 @@ class _SectionTitle extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Aviso com a data atual, no modo de remarcar.
+class _CurrentAppointment extends StatelessWidget {
+  final Appointment appointment;
+
+  const _CurrentAppointment({required this.appointment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.ms),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.event_repeat, color: AppColors.primary),
+          const SizedBox(width: AppSpacing.ms),
+          Expanded(
+            child: Text(
+              'Data atual: ${DateFormatter.shortDate(appointment.startsAt)} '
+              'às ${appointment.time}. Escolha a nova data e horário.',
+              style: AppTypography.body,
+            ),
+          ),
         ],
       ),
     );

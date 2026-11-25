@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +19,7 @@ class LoginView extends StatelessWidget {
     FocusScope.of(context).unfocus();
     final ok = await context.read<LoginViewModel>().submit();
     if (ok && context.mounted) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      unawaited(Navigator.of(context).pushReplacementNamed(AppRoutes.home));
     }
   }
 

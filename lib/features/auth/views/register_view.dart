@@ -1,15 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
+import '../../../core/utils/phone_formatter.dart';
 import '../../../design_system/components/app_button.dart';
 import '../../../design_system/components/app_text_field.dart';
 import '../../../design_system/tokens/app_colors.dart';
+import '../../../design_system/tokens/app_radius.dart';
 import '../../../design_system/tokens/app_spacing.dart';
 import '../../../design_system/tokens/app_typography.dart';
 import '../viewmodels/register_viewmodel.dart';
 import 'widgets/form_error_banner.dart';
-import '../../../design_system/tokens/app_radius.dart';
 
 class RegisterView extends StatelessWidget {
   const RegisterView({super.key});
@@ -19,9 +22,11 @@ class RegisterView extends StatelessWidget {
     final ok = await context.read<RegisterViewModel>().submit();
     if (ok && context.mounted) {
       // A conta já entra logada: vai para a Home e limpa a pilha.
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false);
+      unawaited(
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil(AppRoutes.home, (_) => false),
+      );
     }
   }
 
@@ -92,6 +97,7 @@ class RegisterView extends StatelessWidget {
                       hint: '(63) 99999-0000',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
+                      inputFormatters: [PhoneInputFormatter()],
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.telephoneNumber],
                       errorText: vm.phoneError,

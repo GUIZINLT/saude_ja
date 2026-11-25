@@ -12,6 +12,8 @@ import '../../features/auth/viewmodels/login_viewmodel.dart';
 import '../../features/auth/viewmodels/register_viewmodel.dart';
 import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
+import '../../features/doctors/viewmodels/doctor_details_viewmodel.dart';
+import '../../features/doctors/views/doctor_details_view.dart';
 import '../../features/home/viewmodels/home_viewmodel.dart';
 import '../../features/home/views/main_view.dart';
 
@@ -25,6 +27,9 @@ class AppRoutes {
 
   /// Argumento: id do médico (String).
   static const schedule = '/schedule';
+
+  /// Argumento: id do médico (String).
+  static const doctor = '/doctor';
   static const designSystem = '/design-system';
 
   static const initial = login;
@@ -41,16 +46,29 @@ class AppRoutes {
       child: const RegisterView(),
     ),
     home: _requireLogin((_) => _homePage()),
-    schedule: _requireLogin(
+    doctor: _requireLogin(
       (routeContext) => ChangeNotifierProvider(
-        create: (context) => ScheduleViewModel(
+        create: (context) => DoctorDetailsViewModel(
           doctorId: ModalRoute.of(routeContext)?.settings.arguments as String?,
+          catalog: context.read<CatalogRepository>(),
+        )..load(),
+        child: const DoctorDetailsView(),
+      ),
+    ),
+    schedule: _requireLogin((routeContext) {
+      final args = ScheduleArgs.from(
+        ModalRoute.of(routeContext)?.settings.arguments,
+      );
+      return ChangeNotifierProvider(
+        create: (context) => ScheduleViewModel(
+          doctorId: args?.doctorId,
+          rescheduling: args?.reschedule,
           catalog: context.read<CatalogRepository>(),
           appointments: context.read<AppointmentRepository>(),
         )..load(),
         child: const ScheduleView(),
-      ),
-    ),
+      );
+    }),
     designSystem: (_) => const SampleApp(),
   };
 

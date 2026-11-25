@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../data/models/appointment.dart';
 import '../../../../design_system/components/app_button.dart';
+import '../../../../design_system/components/app_skeleton.dart';
 import '../../../../design_system/components/appointment_card.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_spacing.dart';
@@ -65,8 +66,9 @@ class AppointmentListBody extends StatelessWidget {
     switch (vm.status) {
       case AppointmentListStatus.loading:
         return const [
-          SizedBox(height: AppSpacing.xl),
-          Center(child: CircularProgressIndicator()),
+          SkeletonCard(showAvatar: false, lines: 4),
+          SizedBox(height: AppSpacing.md),
+          SkeletonCard(showAvatar: false, lines: 4),
         ];
       case AppointmentListStatus.error:
         return [

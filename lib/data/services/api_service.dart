@@ -65,4 +65,11 @@ abstract interface class ApiService {
 
   /// PATCH /appointments/{id}/cancel (requer login)
   Future<Appointment> cancelAppointment(String id);
+
+  /// PATCH /appointments/{id}/reschedule (requer login)
+  Future<Appointment> rescheduleAppointment(
+    String id, {
+    required String date,
+    required String time,
+  });
 }

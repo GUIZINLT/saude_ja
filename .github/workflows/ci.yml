@@ -34,8 +34,27 @@ jobs:
       - name: Análise estática
         run: flutter analyze
 
-      - name: Testes
-        run: flutter test
+      - name: Testes (com cobertura)
+        run: flutter test --coverage
+
+      - name: Resumo da cobertura (mínimo de 85%)
+        run: dart run tool/coverage_summary.dart --min 85 >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar relatório de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+      - name: Guardar diferenças dos testes visuais
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testes-visuais-falhas
+          path: test/golden/failures/
+          if-no-files-found: ignore
 
       - name: Build web
         run: flutter build web
