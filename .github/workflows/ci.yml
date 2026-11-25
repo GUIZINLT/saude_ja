@@ -1,6 +1,9 @@
-# Verifica o projeto a cada push e pull request:
-# formatação, análise estática, testes (app e design system), cobertura,
-# build web e testes visuais dos componentes.
+# Verifica o projeto a cada push e pull request: formatação, análise
+# estática, testes (app e design system), cobertura, build web e testes
+# visuais dos componentes.
+#
+# Com --reporter github, cada teste que falha vira um aviso na execução,
+# com o nome do teste e o erro (visível sem login no GitHub).
 name: CI
 
 on:
@@ -39,11 +42,11 @@ jobs:
 
       # Os testes visuais rodam no job do Windows (abaixo).
       - name: Testes do app (com cobertura)
-        run: flutter test --coverage --exclude-tags golden
+        run: flutter test --coverage --exclude-tags golden --reporter github
 
       - name: Testes do design system (contraste e demais)
         working-directory: packages/saude_ja_design_system
-        run: flutter test --exclude-tags golden
+        run: flutter test --exclude-tags golden --reporter github
 
       - name: Resumo da cobertura (mínimo de 85%)
         run: dart run tool/coverage_summary.dart --min 85 >> "$GITHUB_STEP_SUMMARY"
@@ -84,7 +87,7 @@ jobs:
 
       - name: Testes visuais dos componentes (claro e escuro)
         working-directory: packages/saude_ja_design_system
-        run: flutter test test/golden
+        run: flutter test test/golden --reporter github
 
       - name: Guardar diferenças dos testes visuais
         if: failure()
