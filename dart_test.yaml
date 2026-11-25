@@ -1,0 +1,5 @@
+# Tags usadas nos testes.
+tags:
+  # Testes visuais (comparação com imagens de referência). As imagens são
+  # geradas no Windows; no CI esses testes rodam no job do Windows.
+  golden:

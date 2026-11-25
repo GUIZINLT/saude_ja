@@ -186,7 +186,7 @@ dart run tool/coverage_summary.dart
 
 A análise estática usa regras mais rígidas que o padrão do Flutter (tipagem estrita, `const`, aspas simples, ordem de imports, futures não aguardados), definidas em [analysis_options.yaml](analysis_options.yaml).
 
-A cada push, o **GitHub Actions** ([.github/workflows/ci.yml](.github/workflows/ci.yml)) confere formatação, análise estática, testes, cobertura mínima de 85% e o build web. O selo no topo deste README mostra o resultado, e a tabela de cobertura aparece no resumo de cada execução.
+A cada push, o **GitHub Actions** ([.github/workflows/ci.yml](.github/workflows/ci.yml)) confere formatação, análise estática, testes, cobertura mínima de 85% e o build web (no Linux) e roda os testes visuais num Windows, o mesmo sistema em que as imagens de referência foram geradas. O selo no topo deste README mostra o resultado, e a tabela de cobertura aparece no resumo de cada execução.
 
 Os prints deste README são gerados por teste, sempre com os mesmos dados e data. Para atualizar depois de mudar alguma tela:
 

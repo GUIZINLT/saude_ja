@@ -1,5 +1,6 @@
 # Verifica o projeto a cada push e pull request:
-# formatação, análise estática, testes e build web.
+# formatação, análise estática, testes, cobertura, build web e testes
+# visuais dos componentes.
 name: CI
 
 on:
@@ -34,8 +35,9 @@ jobs:
       - name: Análise estática
         run: flutter analyze
 
+      # Os testes visuais rodam no job do Windows (abaixo).
       - name: Testes (com cobertura)
-        run: flutter test --coverage
+        run: flutter test --coverage --exclude-tags golden
 
       - name: Resumo da cobertura (mínimo de 85%)
         run: dart run tool/coverage_summary.dart --min 85 >> "$GITHUB_STEP_SUMMARY"
@@ -48,6 +50,34 @@ jobs:
           path: coverage/lcov.info
           if-no-files-found: ignore
 
+      - name: Build web
+        run: flutter build web
+
+  testes-visuais:
+    # As imagens de referência (test/golden/goldens) são geradas no Windows,
+    # e cada sistema desenha bordas e texto com pequenas diferenças de
+    # pixel. Por isso a comparação roda num Windows também.
+    name: Testes visuais (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar o Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.4
+          cache: true
+
+      - name: Baixar dependências
+        run: flutter pub get
+
+      - name: Testes visuais dos componentes
+        run: flutter test test/golden
+
       - name: Guardar diferenças dos testes visuais
         if: failure()
         uses: actions/upload-artifact@v4
@@ -55,6 +85,3 @@ jobs:
           name: testes-visuais-falhas
           path: test/golden/failures/
           if-no-files-found: ignore
-
-      - name: Build web
-        run: flutter build web
