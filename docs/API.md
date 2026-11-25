@@ -17,6 +17,8 @@ API REST do app SaúdeJá (agendamento de consultas). Esta documentação descre
 |---|---|---|---|
 | POST | [`/auth/login`](#post-authlogin) | não | Login |
 | POST | [`/auth/register`](#post-authregister) | não | Cadastro |
+| POST | [`/auth/forgot-password`](#post-authforgot-password) | não | Esqueci minha senha |
+| POST | [`/auth/reset-password`](#post-authreset-password) | não | Esqueci minha senha (nova senha) |
 | GET | [`/users/me`](#get-usersme) | **sim** | Abertura do app (restaurar a sessão salva) |
 | GET | [`/specialties`](#get-specialties) | não | Home, Especialidades |
 | GET | [`/doctors`](#get-doctors) | não | Home (médicos em destaque), lista de médicos, busca |
@@ -163,6 +165,69 @@ Exemplo de `422`:
   }
 }
 ```
+
+### POST /auth/forgot-password
+
+Pede um código de 6 dígitos para trocar a senha. O código vale por **15 minutos** e só pode ser usado uma vez. Um backend real envia o código por e-mail.
+
+A resposta é **a mesma exista o e-mail ou não**, para ninguém descobrir quais e-mails têm conta.
+
+**Request**
+
+```json
+{ "email": "maria@saudeja.com" }
+```
+
+**Response `202 Accepted`**
+
+```json
+{
+  "message": "Se houver uma conta com este e-mail, enviamos um código para redefinir a senha.",
+  "devCode": "482913"
+}
+```
+
+> `devCode` existe **só no mock**, que não envia e-mail: é o código que chegaria na caixa de entrada, para dar para testar o fluxo. O app mostra esse código numa faixa "Modo de demonstração". Um backend real nunca devolve o código.
+
+**Erros**
+
+| Status | `code` | Quando |
+|---|---|---|
+| 422 | `VALIDATION_ERROR` | e-mail fora do formato |
+
+### POST /auth/reset-password
+
+Troca a senha usando o código recebido.
+
+**Request**
+
+```json
+{
+  "email": "maria@saudeja.com",
+  "code": "482913",
+  "newPassword": "novaSenha1"
+}
+```
+
+| Campo | Tipo | Regra |
+|---|---|---|
+| `email` | string | e-mail da conta |
+| `code` | string | 6 dígitos |
+| `newPassword` | string | mínimo 6 caracteres |
+
+**Response `200 OK`**
+
+```json
+{ "message": "Senha alterada. Entre com a nova senha." }
+```
+
+**Erros**
+
+| Status | `code` | Quando |
+|---|---|---|
+| 422 | `VALIDATION_ERROR` | campo fora do formato (`fields` traz cada um) |
+| 400 | `INVALID_RESET_CODE` | código errado, já usado ou de outro e-mail |
+| 400 | `RESET_CODE_EXPIRED` | passaram mais de 15 minutos |
 
 ### GET /users/me
 

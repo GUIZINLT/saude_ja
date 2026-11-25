@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 /// Lê um arquivo de `assets/mock/` pelo nome (ex.: `doctors.json`).
 typedef MockAssetLoader = Future<String> Function(String fileName);
@@ -23,11 +24,26 @@ class MockResponse {
 /// Os dados vêm dos JSONs de `assets/mock/` e ficam em memória: agendar e
 /// cancelar funcionam, mas tudo volta ao estado inicial ao reiniciar.
 class MockBackend {
-  MockBackend({required this._loader, DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  MockBackend({
+    required this._loader,
+    DateTime Function()? clock,
+    String Function()? resetCodeGenerator,
+  }) : _clock = clock ?? DateTime.now,
+       _newResetCode = resetCodeGenerator ?? _randomCode;
 
   final MockAssetLoader _loader;
   final DateTime Function() _clock;
+
+  /// Gera o código de recuperação de senha (fixo nos testes).
+  final String Function() _newResetCode;
+
+  /// Códigos de recuperação pendentes: e-mail -> (código, validade).
+  final Map<String, ({String code, DateTime expiresAt})> _resetCodes = {};
+
+  static const _resetCodeValidity = Duration(minutes: 15);
+
+  static String _randomCode() =>
+      Random.secure().nextInt(1000000).toString().padLeft(6, '0');
 
   Future<void>? _loading;
   late final List<Map<String, dynamic>> _users;
@@ -88,6 +104,10 @@ class MockBackend {
           return _login(_bodyMap(body));
         case ['auth', 'register'] when m == 'POST':
           return _register(_bodyMap(body));
+        case ['auth', 'forgot-password'] when m == 'POST':
+          return _forgotPassword(_bodyMap(body));
+        case ['auth', 'reset-password'] when m == 'POST':
+          return _resetPassword(_bodyMap(body));
         case ['users', 'me'] when m == 'GET':
           return _me(_auth(authorization));
         case ['specialties'] when m == 'GET':
@@ -189,6 +209,68 @@ class MockBackend {
     };
     _users.add(user);
     return MockResponse(201, _session(user));
+  }
+
+  /// Gera um código de 6 dígitos para trocar a senha. A resposta é a
+  /// mesma exista o e-mail ou não, para não revelar quem tem conta.
+  MockResponse _forgotPassword(Map<String, dynamic> body) {
+    final email = _str(body['email']).toLowerCase();
+    if (!_emailRe.hasMatch(email)) {
+      throw _validation({'email': 'E-mail inválido.'});
+    }
+    final response = <String, dynamic>{
+      'message':
+          'Se houver uma conta com este e-mail, enviamos um código para '
+          'redefinir a senha.',
+    };
+    if (_users.any((u) => u['email'] == email)) {
+      final code = _newResetCode();
+      _resetCodes[email] = (
+        code: code,
+        expiresAt: _clock().add(_resetCodeValidity),
+      );
+      // Só no mock: não há envio de e-mail, então o código volta na
+      // resposta para dar para testar. Um backend real NUNCA faz isso.
+      response['devCode'] = code;
+    }
+    return MockResponse(202, response);
+  }
+
+  MockResponse _resetPassword(Map<String, dynamic> body) {
+    final email = _str(body['email']).toLowerCase();
+    final code = _str(body['code']);
+    final password = _str(body['newPassword']);
+
+    final fields = <String, String>{
+      if (!_emailRe.hasMatch(email)) 'email': 'E-mail inválido.',
+      if (!RegExp(r'^\d{6}$').hasMatch(code)) 'code': 'O código tem 6 dígitos.',
+      if (password.length < 6)
+        'newPassword': 'A senha deve ter pelo menos 6 caracteres.',
+    };
+    if (fields.isNotEmpty) throw _validation(fields);
+
+    final pending = _resetCodes[email];
+    if (pending == null || pending.code != code) {
+      throw _HttpError(
+        400,
+        'INVALID_RESET_CODE',
+        'Código inválido. Confira o código ou peça um novo.',
+      );
+    }
+    if (_clock().isAfter(pending.expiresAt)) {
+      _resetCodes.remove(email);
+      throw _HttpError(
+        400,
+        'RESET_CODE_EXPIRED',
+        'O código expirou. Peça um novo.',
+      );
+    }
+
+    _users.firstWhere((u) => u['email'] == email)['password'] = password;
+    _resetCodes.remove(email); // o código só vale uma vez
+    return const MockResponse(200, {
+      'message': 'Senha alterada. Entre com a nova senha.',
+    });
   }
 
   Map<String, dynamic> _session(Map<String, dynamic> user) {

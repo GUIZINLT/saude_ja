@@ -6,14 +6,8 @@ import 'package:saude_ja/core/routes/app_routes.dart';
 import 'package:saude_ja/data/repositories/auth_repository.dart';
 import 'package:saude_ja/data/services/mock_api_service.dart';
 import 'package:saude_ja/data/services/session_storage.dart';
-import 'package:saude_ja/design_system/components/app_bottom_navigation.dart';
-import 'package:saude_ja/design_system/components/app_skeleton.dart';
-import 'package:saude_ja/design_system/components/appointment_card.dart';
-import 'package:saude_ja/design_system/components/date_chip.dart';
-import 'package:saude_ja/design_system/components/doctor_card.dart';
-import 'package:saude_ja/design_system/components/specialty_card.dart';
-import 'package:saude_ja/design_system/components/time_slot_button.dart';
 import 'package:saude_ja/main.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import 'helpers/test_api.dart';
 
@@ -100,6 +94,43 @@ void main() {
     expect(find.text('maria@saudeja.com'), findsOneWidget);
     await tapAndSettle(tester, find.text('Sair'));
     expect(find.widgetWithText(FilledButton, 'Entrar'), findsOneWidget);
+  });
+
+  testWidgets('esqueci minha senha: troca a senha e entra com a nova', (
+    tester,
+  ) async {
+    await tester.pumpWidget(SaudeJaApp(api: createTestApi()));
+    await tapAndSettle(tester, find.text('Esqueci minha senha'));
+    expect(find.textContaining('Vamos enviar um código'), findsOneWidget);
+
+    await tester.enterText(field('E-mail'), 'maria@saudeja.com');
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(FilledButton, 'Enviar código'),
+    );
+
+    // No mock, o código aparece na faixa de demonstração.
+    expect(find.textContaining('o código é 123456'), findsOneWidget);
+    await tester.enterText(field('Código'), '123456');
+    await tester.enterText(field('Nova senha'), 'nova123');
+    await tester.enterText(field('Confirmar nova senha'), 'nova123');
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(FilledButton, 'Redefinir senha'),
+    );
+
+    expect(find.text('Senha alterada!'), findsOneWidget);
+    await tapAndSettle(tester, find.text('Ir para o login'));
+
+    // De volta ao Login: a senha antiga não vale mais, a nova sim.
+    await tester.enterText(field('E-mail'), 'maria@saudeja.com');
+    await tester.enterText(field('Senha'), '123456');
+    await tapAndSettle(tester, find.widgetWithText(FilledButton, 'Entrar'));
+    expect(find.text('E-mail ou senha incorretos.'), findsOneWidget);
+
+    await tester.enterText(field('Senha'), 'nova123');
+    await tapAndSettle(tester, find.widgetWithText(FilledButton, 'Entrar'));
+    expect(find.text('Olá, Maria'), findsOneWidget);
   });
 
   testWidgets('campos vazios e senha errada mostram erro', (tester) async {

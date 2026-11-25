@@ -4,6 +4,7 @@ import '../models/appointment.dart';
 import '../models/auth_session.dart';
 import '../models/availability.dart';
 import '../models/doctor.dart';
+import '../models/password_reset.dart';
 import '../models/register_request.dart';
 import '../models/specialty.dart';
 import '../models/user.dart';
@@ -75,6 +76,29 @@ abstract class JsonApiService implements ApiService {
 
   @override
   void logout() => _token = null;
+
+  @override
+  Future<PasswordResetRequest> forgotPassword(String email) async {
+    final body = await send(
+      'POST',
+      '/auth/forgot-password',
+      body: {'email': email},
+    );
+    return PasswordResetRequest.fromJson(_object(body));
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    await send(
+      'POST',
+      '/auth/reset-password',
+      body: {'email': email, 'code': code, 'newPassword': newPassword},
+    );
+  }
 
   @override
   Future<List<Specialty>> getSpecialties() async {

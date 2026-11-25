@@ -12,10 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saude_ja/core/routes/app_routes.dart';
-import 'package:saude_ja/design_system/components/date_chip.dart';
-import 'package:saude_ja/design_system/components/doctor_card.dart';
-import 'package:saude_ja/design_system/components/time_slot_button.dart';
+import 'package:saude_ja/core/theme/theme_controller.dart';
 import 'package:saude_ja/main.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../test/helpers/test_api.dart';
 
@@ -28,13 +27,18 @@ void main() {
     await _loadFonts();
   });
 
-  Future<void> open(WidgetTester tester, {String? route}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    String? route,
+    ThemeMode themeMode = ThemeMode.light,
+  }) async {
     tester.view.physicalSize = _phone * _pixelRatio;
     tester.view.devicePixelRatio = _pixelRatio;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       SaudeJaApp(
         api: createTestApi(),
+        themeController: ThemeController()..setMode(themeMode),
         initialRoute: route ?? AppRoutes.initial,
       ),
     );
@@ -47,8 +51,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> login(WidgetTester tester) async {
-    await open(tester);
+  Future<void> login(
+    WidgetTester tester, {
+    ThemeMode themeMode = ThemeMode.light,
+  }) async {
+    await open(tester, themeMode: themeMode);
     await tester.enterText(
       find.widgetWithText(TextFormField, 'E-mail'),
       'maria@saudeja.com',
@@ -106,6 +113,37 @@ void main() {
     await login(tester);
     await tap(tester, find.widgetWithText(DoctorCard, 'Dra. Helena Ribeiro'));
     await shoot(tester, '11_medico');
+  });
+
+  testWidgets('14 esqueci minha senha', (tester) async {
+    await open(tester);
+    await tap(tester, find.text('Esqueci minha senha'));
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'E-mail'),
+      'maria@saudeja.com',
+    );
+    await tap(tester, find.widgetWithText(FilledButton, 'Enviar código'));
+    await shoot(tester, '14_esqueci_senha');
+  });
+
+  testWidgets('15 perfil escuro', (tester) async {
+    await login(tester, themeMode: ThemeMode.dark);
+    await tap(tester, find.text('Perfil'));
+    await shoot(tester, '15_perfil_escuro');
+  });
+
+  testWidgets('12 home escuro', (tester) async {
+    await login(tester, themeMode: ThemeMode.dark);
+    await shoot(tester, '12_home_escuro');
+  });
+
+  testWidgets('13 agendamento escuro', (tester) async {
+    await login(tester, themeMode: ThemeMode.dark);
+    await tap(tester, find.widgetWithText(DoctorCard, 'Dra. Helena Ribeiro'));
+    await tap(tester, find.widgetWithText(FilledButton, 'Agendar consulta'));
+    await tap(tester, find.widgetWithText(DateChip, '25'));
+    await tap(tester, find.widgetWithText(TimeSlotButton, '09:30'));
+    await shoot(tester, '13_agendamento_escuro');
   });
 
   testWidgets('06 consultas', (tester) async {

@@ -2,13 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../core/routes/app_routes.dart';
-import '../../../design_system/components/app_button.dart';
-import '../../../design_system/components/app_text_field.dart';
-import '../../../design_system/tokens/app_colors.dart';
-import '../../../design_system/tokens/app_spacing.dart';
-import '../../../design_system/tokens/app_typography.dart';
 import '../viewmodels/login_viewmodel.dart';
 import 'widgets/form_error_banner.dart';
 
@@ -79,14 +75,13 @@ class LoginView extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () =>
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Recuperação de senha ainda não disponível.',
-                                  ),
+                          onPressed: vm.isLoading
+                              ? null
+                              : () => unawaited(
+                                  Navigator.of(
+                                    context,
+                                  ).pushNamed(AppRoutes.forgotPassword),
                                 ),
-                              ),
                           child: const Text('Esqueci minha senha'),
                         ),
                       ),
@@ -133,24 +128,26 @@ class _Logo extends StatelessWidget {
           width: 88,
           height: 88,
           decoration: BoxDecoration(
-            color: AppColors.secondary.withValues(alpha: 0.2),
+            color: context.colors.secondary.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
+          child: Icon(
             Icons.health_and_safety_outlined,
-            color: AppColors.primary,
+            color: context.colors.primary,
             size: 48,
           ),
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
           'SaúdeJá',
-          style: AppTypography.heading.copyWith(color: AppColors.primary),
+          style: context.typography.heading.copyWith(
+            color: context.colors.primary,
+          ),
         ),
         const SizedBox(height: AppSpacing.xs),
-        const Text(
+        Text(
           'Sua saúde em primeiro lugar.',
-          style: AppTypography.subtitle,
+          style: context.typography.subtitle,
         ),
       ],
     );

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../data/models/appointment.dart';
-import '../../../design_system/components/app_dialog.dart';
-import '../../../design_system/tokens/app_colors.dart';
-import '../../../design_system/tokens/app_spacing.dart';
 import '../viewmodels/appointment_list_viewmodel.dart';
 import '../viewmodels/schedule_viewmodel.dart';
 import 'widgets/appointment_list_body.dart';
@@ -44,7 +42,7 @@ class AppointmentsView extends StatelessWidget {
       confirmLabel: 'Cancelar consulta',
       cancelLabel: 'Manter consulta',
       icon: Icons.event_busy_outlined,
-      iconColor: AppColors.error,
+      iconColor: context.colors.error,
       destructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -84,7 +82,9 @@ class AppointmentsView extends StatelessWidget {
                 label: const Text('Remarcar'),
               ),
               TextButton.icon(
-                style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                style: TextButton.styleFrom(
+                  foregroundColor: context.colors.error,
+                ),
                 onPressed: busy ? null : () => _cancel(context, a),
                 icon: cancelling
                     ? const SizedBox(

@@ -2,15 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/phone_formatter.dart';
-import '../../../design_system/components/app_button.dart';
-import '../../../design_system/components/app_text_field.dart';
-import '../../../design_system/tokens/app_colors.dart';
-import '../../../design_system/tokens/app_radius.dart';
-import '../../../design_system/tokens/app_spacing.dart';
-import '../../../design_system/tokens/app_typography.dart';
 import '../viewmodels/register_viewmodel.dart';
 import 'widgets/form_error_banner.dart';
 
@@ -61,11 +56,11 @@ class RegisterView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('Criar conta', style: AppTypography.heading),
+                    Text('Criar conta', style: context.typography.heading),
                     const SizedBox(height: AppSpacing.xs),
-                    const Text(
+                    Text(
                       'Preencha seus dados para agendar consultas.',
-                      style: AppTypography.subtitle,
+                      style: context.typography.subtitle,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
@@ -146,10 +141,11 @@ class RegisterView extends StatelessWidget {
                       onPressed: () => _submit(context),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const Text('Já tem conta?', style: AppTypography.body),
+                        Text('Já tem conta?', style: context.typography.body),
                         TextButton(
                           onPressed: vm.isLoading
                               ? null
@@ -187,25 +183,29 @@ class _TermsCheckbox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          onTap: onChanged == null ? null : () => onChanged!(!value),
-          child: Row(
-            children: [
-              Checkbox(
-                value: value,
-                activeColor: AppColors.primary,
-                onChanged: onChanged == null
-                    ? null
-                    : (v) => onChanged!(v ?? false),
-              ),
-              const Expanded(
-                child: Text(
-                  'Li e aceito os termos de uso',
-                  style: AppTypography.body,
+        // Junta checkbox e texto num item só para o leitor de tela:
+        // "Li e aceito os termos de uso, caixa de seleção".
+        MergeSemantics(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            onTap: onChanged == null ? null : () => onChanged!(!value),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: value,
+                  activeColor: context.colors.primary,
+                  onChanged: onChanged == null
+                      ? null
+                      : (v) => onChanged!(v ?? false),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Text(
+                    'Li e aceito os termos de uso',
+                    style: context.typography.body,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         if (errorText != null)
@@ -213,7 +213,9 @@ class _TermsCheckbox extends StatelessWidget {
             padding: const EdgeInsets.only(left: AppSpacing.md),
             child: Text(
               errorText!,
-              style: AppTypography.caption.copyWith(color: AppColors.error),
+              style: context.typography.caption.copyWith(
+                color: context.colors.error,
+              ),
             ),
           ),
       ],

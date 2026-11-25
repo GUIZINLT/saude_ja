@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/password_reset.dart';
 import '../models/register_request.dart';
 import '../models/user.dart';
 import '../services/api_exception.dart';
@@ -63,6 +64,18 @@ class AuthRepository extends ChangeNotifier {
     notifyListeners();
     return session.user;
   }
+
+  /// Pede o código para trocar a senha. Lança ApiException (422...).
+  Future<PasswordResetRequest> forgotPassword(String email) =>
+      _api.forgotPassword(email);
+
+  /// Troca a senha com o código. Lança ApiException (400 código inválido
+  /// ou expirado, 422...).
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) => _api.resetPassword(email: email, code: code, newPassword: newPassword);
 
   void logout() {
     _api.logout();

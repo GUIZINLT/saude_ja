@@ -2,6 +2,7 @@ import '../models/appointment.dart';
 import '../models/auth_session.dart';
 import '../models/availability.dart';
 import '../models/doctor.dart';
+import '../models/password_reset.dart';
 import '../models/register_request.dart';
 import '../models/specialty.dart';
 import '../models/user.dart';
@@ -28,6 +29,16 @@ abstract interface class ApiService {
 
   /// Descarta o token guardado (sem chamada à API).
   void logout();
+
+  /// POST /auth/forgot-password: pede um código para trocar a senha.
+  Future<PasswordResetRequest> forgotPassword(String email);
+
+  /// POST /auth/reset-password: troca a senha usando o código.
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  });
 
   /// GET /specialties
   Future<List<Specialty>> getSpecialties();

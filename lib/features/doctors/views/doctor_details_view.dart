@@ -2,15 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../data/models/doctor.dart';
-import '../../../design_system/components/app_button.dart';
-import '../../../design_system/components/app_card.dart';
-import '../../../design_system/components/app_skeleton.dart';
-import '../../../design_system/tokens/app_colors.dart';
-import '../../../design_system/tokens/app_spacing.dart';
-import '../../../design_system/tokens/app_typography.dart';
 import '../viewmodels/doctor_details_viewmodel.dart';
 
 /// Detalhes do médico, antes de agendar. Fecha devolvendo `true` quando uma
@@ -46,7 +41,7 @@ class DoctorDetailsView extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => _goBack(context),
         ),
-        title: const Text('Médico', style: AppTypography.title),
+        title: Text('Médico', style: context.typography.title),
       ),
       body: SafeArea(
         child: Center(
@@ -97,49 +92,49 @@ class _Details extends StatelessWidget {
         Center(
           child: CircleAvatar(
             radius: 48,
-            backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
-            child: const Icon(Icons.person, color: AppColors.primary, size: 52),
+            backgroundColor: context.colors.secondary.withValues(alpha: 0.2),
+            child: Icon(Icons.person, color: context.colors.primary, size: 52),
           ),
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
           doctor.name,
           textAlign: TextAlign.center,
-          style: AppTypography.title,
+          style: context.typography.title,
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           doctor.specialtyName,
           textAlign: TextAlign.center,
-          style: AppTypography.subtitle,
+          style: context.typography.subtitle,
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           doctor.crm,
           textAlign: TextAlign.center,
-          style: AppTypography.caption,
+          style: context.typography.caption,
         ),
         const SizedBox(height: AppSpacing.md),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.star, color: AppColors.rating, size: 20),
+            Icon(Icons.star, color: context.colors.rating, size: 20),
             const SizedBox(width: AppSpacing.xs),
             Text(
               doctor.rating.toStringAsFixed(1),
-              style: AppTypography.bodyStrong,
+              style: context.typography.bodyStrong,
             ),
             const SizedBox(width: AppSpacing.sm),
             Text(
               '(${doctor.reviewCount} avaliações)',
-              style: AppTypography.bodySmall,
+              style: context.typography.bodySmall,
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
-        const Text('Sobre', style: AppTypography.title),
+        Text('Sobre', style: context.typography.title),
         const SizedBox(height: AppSpacing.sm),
-        Text(doctor.bio, style: AppTypography.body),
+        Text(doctor.bio, style: context.typography.body),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
@@ -210,15 +205,15 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.primary),
+        Icon(icon, color: context.colors.primary),
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: AppTypography.caption),
+              Text(label, style: context.typography.caption),
               const SizedBox(height: AppSpacing.xxs),
-              Text(value, style: AppTypography.bodyStrong),
+              Text(value, style: context.typography.bodyStrong),
             ],
           ),
         ),
@@ -240,13 +235,17 @@ class _ErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.person_off_outlined,
             size: 48,
-            color: AppColors.error,
+            color: context.colors.error,
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(message, textAlign: TextAlign.center, style: AppTypography.body),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: context.typography.body,
+          ),
           if (onRetry != null) ...[
             const SizedBox(height: AppSpacing.lg),
             AppButton(label: 'Tentar novamente', onPressed: onRetry),

@@ -1,6 +1,6 @@
 # Verifica o projeto a cada push e pull request:
-# formatação, análise estática, testes, cobertura, build web e testes
-# visuais dos componentes.
+# formatação, análise estática, testes (app e design system), cobertura,
+# build web e testes visuais dos componentes.
 name: CI
 
 on:
@@ -26,18 +26,24 @@ jobs:
           flutter-version: 3.44.4
           cache: true
 
-      - name: Baixar dependências
-        run: flutter pub get
+      - name: Baixar dependências (app e design system)
+        run: |
+          flutter pub get
+          flutter pub get --directory packages/saude_ja_design_system
 
       - name: Conferir formatação
-        run: dart format --output=none --set-exit-if-changed lib test tool screenshots
+        run: dart format --output=none --set-exit-if-changed lib test tool screenshots packages
 
       - name: Análise estática
         run: flutter analyze
 
       # Os testes visuais rodam no job do Windows (abaixo).
-      - name: Testes (com cobertura)
+      - name: Testes do app (com cobertura)
         run: flutter test --coverage --exclude-tags golden
+
+      - name: Testes do design system (contraste e demais)
+        working-directory: packages/saude_ja_design_system
+        run: flutter test --exclude-tags golden
 
       - name: Resumo da cobertura (mínimo de 85%)
         run: dart run tool/coverage_summary.dart --min 85 >> "$GITHUB_STEP_SUMMARY"
@@ -54,9 +60,9 @@ jobs:
         run: flutter build web
 
   testes-visuais:
-    # As imagens de referência (test/golden/goldens) são geradas no Windows,
-    # e cada sistema desenha bordas e texto com pequenas diferenças de
-    # pixel. Por isso a comparação roda num Windows também.
+    # As imagens de referência são geradas no Windows, e cada sistema
+    # desenha bordas e texto com pequenas diferenças de pixel. Por isso a
+    # comparação roda num Windows também.
     name: Testes visuais (Windows)
     runs-on: windows-latest
     timeout-minutes: 20
@@ -73,9 +79,11 @@ jobs:
           cache: true
 
       - name: Baixar dependências
+        working-directory: packages/saude_ja_design_system
         run: flutter pub get
 
-      - name: Testes visuais dos componentes
+      - name: Testes visuais dos componentes (claro e escuro)
+        working-directory: packages/saude_ja_design_system
         run: flutter test test/golden
 
       - name: Guardar diferenças dos testes visuais
@@ -83,5 +91,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: testes-visuais-falhas
-          path: test/golden/failures/
+          path: packages/saude_ja_design_system/test/golden/failures/
           if-no-files-found: ignore

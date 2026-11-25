@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../data/models/appointment.dart';
 import '../../../data/models/availability.dart';
 import '../../../data/models/doctor.dart';
-import '../../../design_system/components/app_button.dart';
-import '../../../design_system/components/app_card.dart';
-import '../../../design_system/components/app_dialog.dart';
-import '../../../design_system/components/app_skeleton.dart';
-import '../../../design_system/components/date_chip.dart';
-import '../../../design_system/components/time_slot_button.dart';
-import '../../../design_system/tokens/app_colors.dart';
-import '../../../design_system/tokens/app_radius.dart';
-import '../../../design_system/tokens/app_spacing.dart';
-import '../../../design_system/tokens/app_typography.dart';
 import '../../auth/views/widgets/form_error_banner.dart';
 import '../viewmodels/schedule_viewmodel.dart';
 
@@ -73,8 +64,8 @@ class ScheduleView extends StatelessWidget {
                       IconButton.outlined(
                         tooltip: 'Voltar',
                         style: IconButton.styleFrom(
-                          backgroundColor: AppColors.surface,
-                          side: const BorderSide(color: AppColors.border),
+                          backgroundColor: context.colors.surface,
+                          side: BorderSide(color: context.colors.border),
                         ),
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () => _goBack(context),
@@ -85,7 +76,7 @@ class ScheduleView extends StatelessWidget {
                           vm.isRescheduling
                               ? 'Remarcar consulta'
                               : 'Agendar consulta',
-                          style: AppTypography.heading,
+                          style: context.typography.heading,
                         ),
                       ),
                     ],
@@ -147,16 +138,16 @@ class ScheduleView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.event_busy_outlined,
                 size: 48,
-                color: AppColors.error,
+                color: context.colors.error,
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 vm.errorMessage!,
                 textAlign: TextAlign.center,
-                style: AppTypography.body,
+                style: context.typography.body,
               ),
               const SizedBox(height: AppSpacing.lg),
               if (vm.doctorId != null)
@@ -226,21 +217,18 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        top: AppSpacing.lg,
-        bottom: AppSpacing.md - 4,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
+      padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.ms),
+      // Wrap: com fonte grande, o mês desce para a linha de baixo.
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.end,
+        spacing: AppSpacing.sm,
         children: [
-          Text(text, style: AppTypography.title),
+          Text(text, style: context.typography.title),
           if (trailing != null && trailing!.isNotEmpty) ...[
-            const SizedBox(width: AppSpacing.sm),
             Text(
               trailing!,
-              style: AppTypography.body.copyWith(
-                color: AppColors.textSecondary,
+              style: context.typography.body.copyWith(
+                color: context.colors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -262,18 +250,18 @@ class _CurrentAppointment extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.ms),
       decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.15),
+        color: context.colors.secondary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Row(
         children: [
-          const Icon(Icons.event_repeat, color: AppColors.primary),
+          Icon(Icons.event_repeat, color: context.colors.primary),
           const SizedBox(width: AppSpacing.ms),
           Expanded(
             child: Text(
               'Data atual: ${DateFormatter.shortDate(appointment.startsAt)} '
               'às ${appointment.time}. Escolha a nova data e horário.',
-              style: AppTypography.body,
+              style: context.typography.body,
             ),
           ),
         ],
@@ -295,8 +283,8 @@ class _DoctorHeader extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 28,
-            backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
-            child: const Icon(Icons.person, color: AppColors.primary, size: 30),
+            backgroundColor: context.colors.secondary.withValues(alpha: 0.2),
+            child: Icon(Icons.person, color: context.colors.primary, size: 30),
           ),
           const SizedBox(width: AppSpacing.ms),
           Expanded(
@@ -305,7 +293,7 @@ class _DoctorHeader extends StatelessWidget {
               children: [
                 Text(
                   doctor.name,
-                  style: AppTypography.body.copyWith(
+                  style: context.typography.body.copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
@@ -313,13 +301,13 @@ class _DoctorHeader extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   doctor.specialtyName,
-                  style: AppTypography.body.copyWith(
+                  style: context.typography.body.copyWith(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
-                Text(doctor.crm, style: AppTypography.caption),
+                Text(doctor.crm, style: context.typography.caption),
               ],
             ),
           ),
@@ -337,9 +325,9 @@ class _DatePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (vm.days.isEmpty) {
-      return const Text(
+      return Text(
         'Este médico não tem agenda nos próximos dias.',
-        style: AppTypography.subtitle,
+        style: context.typography.subtitle,
       );
     }
     return Wrap(
@@ -369,9 +357,9 @@ class _TimeGrid extends StatelessWidget {
     final day = vm.selectedDay;
     if (day == null) return const SizedBox.shrink();
     if (!day.hasFreeSlot) {
-      return const Text(
+      return Text(
         'Não há horários livres neste dia. Escolha outra data.',
-        style: AppTypography.subtitle,
+        style: context.typography.subtitle,
       );
     }
 

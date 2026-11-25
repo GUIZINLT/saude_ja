@@ -391,6 +391,106 @@ void main() {
       expect(invalid.statusCode, 422);
     });
 
+    test('esqueci a senha: código troca a senha uma vez só', () async {
+      final forgot = await api.handle(
+        'POST',
+        '/auth/forgot-password',
+        body: {'email': 'maria@saudeja.com'},
+      );
+      expect(forgot.statusCode, 202);
+      final code = obj(forgot.body)['devCode'] as String;
+      expect(code, matches(RegExp(r'^\d{6}$')));
+
+      final wrong = await api.handle(
+        'POST',
+        '/auth/reset-password',
+        body: {
+          'email': 'maria@saudeja.com',
+          'code': code == '000000' ? '111111' : '000000',
+          'newPassword': 'nova123',
+        },
+      );
+      expect(error(wrong)['code'], 'INVALID_RESET_CODE');
+
+      final reset = await api.handle(
+        'POST',
+        '/auth/reset-password',
+        body: {
+          'email': 'maria@saudeja.com',
+          'code': code,
+          'newPassword': 'nova123',
+        },
+      );
+      expect(reset.statusCode, 200);
+
+      final oldLogin = await api.handle(
+        'POST',
+        '/auth/login',
+        body: {'email': 'maria@saudeja.com', 'password': '123456'},
+      );
+      expect(oldLogin.statusCode, 401);
+      final newLogin = await api.handle(
+        'POST',
+        '/auth/login',
+        body: {'email': 'maria@saudeja.com', 'password': 'nova123'},
+      );
+      expect(newLogin.statusCode, 200);
+
+      final reused = await api.handle(
+        'POST',
+        '/auth/reset-password',
+        body: {
+          'email': 'maria@saudeja.com',
+          'code': code,
+          'newPassword': 'outra123',
+        },
+      );
+      expect(error(reused)['code'], 'INVALID_RESET_CODE');
+    });
+
+    test('esqueci a senha: e-mail sem conta recebe a mesma resposta', () async {
+      final res = await api.handle(
+        'POST',
+        '/auth/forgot-password',
+        body: {'email': 'ninguem@exemplo.com'},
+      );
+      expect(res.statusCode, 202);
+      expect(obj(res.body).containsKey('devCode'), isFalse);
+
+      final invalid = await api.handle(
+        'POST',
+        '/auth/forgot-password',
+        body: {'email': 'sem-arroba'},
+      );
+      expect(invalid.statusCode, 422);
+    });
+
+    test('esqueci a senha: código expira em 15 minutos', () async {
+      var now = DateTime(2026, 11, 24, 7);
+      final backend = MockBackend(
+        loader: (file) => File('assets/mock/$file').readAsString(),
+        clock: () => now,
+      );
+      final forgot = await backend.handle(
+        'POST',
+        '/auth/forgot-password',
+        body: {'email': 'maria@saudeja.com'},
+      );
+      final code = obj(forgot.body)['devCode'] as String;
+
+      now = now.add(const Duration(minutes: 16));
+      final late = await backend.handle(
+        'POST',
+        '/auth/reset-password',
+        body: {
+          'email': 'maria@saudeja.com',
+          'code': code,
+          'newPassword': 'nova123',
+        },
+      );
+      expect(error(late)['code'], 'RESET_CODE_EXPIRED');
+    });
+
     test('rota desconhecida -> 404', () async {
       final res = await api.handle('DELETE', '/appointments/a1');
       expect(res.statusCode, 404);

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../core/constants/specialty_icons.dart';
 import '../../../core/routes/app_routes.dart';
@@ -9,17 +10,6 @@ import '../../../core/utils/date_formatter.dart';
 import '../../../data/models/appointment.dart';
 import '../../../data/models/doctor.dart';
 import '../../../data/models/specialty.dart';
-import '../../../design_system/components/app_button.dart';
-import '../../../design_system/components/app_card.dart';
-import '../../../design_system/components/app_skeleton.dart';
-import '../../../design_system/components/app_text_field.dart';
-import '../../../design_system/components/appointment_card.dart';
-import '../../../design_system/components/doctor_card.dart';
-import '../../../design_system/components/specialty_card.dart';
-import '../../../design_system/tokens/app_colors.dart';
-import '../../../design_system/tokens/app_radius.dart';
-import '../../../design_system/tokens/app_spacing.dart';
-import '../../../design_system/tokens/app_typography.dart';
 import '../viewmodels/home_viewmodel.dart';
 
 class HomeView extends StatefulWidget {
@@ -76,11 +66,11 @@ class _HomeViewState extends State<HomeView> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                Text('Olá, ${vm.firstName}', style: AppTypography.heading),
+                Text('Olá, ${vm.firstName}', style: context.typography.heading),
                 const SizedBox(height: AppSpacing.xs),
-                const Text(
+                Text(
                   'Como podemos ajudar hoje?',
-                  style: AppTypography.subtitle,
+                  style: context.typography.subtitle,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppTextField(
@@ -186,7 +176,7 @@ class _SectionTitle extends StatelessWidget {
         top: AppSpacing.lg - 4,
         bottom: AppSpacing.sm,
       ),
-      child: Text(text, style: AppTypography.title),
+      child: Text(text, style: context.typography.title),
     );
   }
 }
@@ -201,15 +191,18 @@ class _NextAppointment extends StatelessWidget {
   Widget build(BuildContext context) {
     final a = appointment;
     if (a == null) {
-      return const AppCard(
+      return AppCard(
         child: Row(
           children: [
-            Icon(Icons.event_available_outlined, color: AppColors.secondary),
+            Icon(
+              Icons.event_available_outlined,
+              color: context.colors.secondary,
+            ),
             SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
                 'Você não tem consultas agendadas.',
-                style: AppTypography.body,
+                style: context.typography.body,
               ),
             ),
           ],
@@ -269,11 +262,11 @@ class _SearchResults extends StatelessWidget {
         ],
       );
     } else if (vm.searchError != null) {
-      content = Text(vm.searchError!, style: AppTypography.body);
+      content = Text(vm.searchError!, style: context.typography.body);
     } else if (vm.searchResults.isEmpty) {
       content = Text(
         'Nenhum médico encontrado para "${vm.query.trim()}".',
-        style: AppTypography.subtitle,
+        style: context.typography.subtitle,
       );
     } else {
       content = _DoctorList(doctors: vm.searchResults, onTap: onDoctorTap);
@@ -303,9 +296,13 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Icon(Icons.cloud_off_outlined, size: 48, color: AppColors.error),
+        Icon(Icons.cloud_off_outlined, size: 48, color: context.colors.error),
         const SizedBox(height: AppSpacing.md),
-        Text(message, textAlign: TextAlign.center, style: AppTypography.body),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: context.typography.body,
+        ),
         const SizedBox(height: AppSpacing.lg),
         AppButton(label: 'Tentar novamente', onPressed: onRetry),
       ],

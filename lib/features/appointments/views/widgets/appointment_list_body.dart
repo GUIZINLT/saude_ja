@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../data/models/appointment.dart';
-import '../../../../design_system/components/app_button.dart';
-import '../../../../design_system/components/app_skeleton.dart';
-import '../../../../design_system/components/appointment_card.dart';
-import '../../../../design_system/tokens/app_colors.dart';
-import '../../../../design_system/tokens/app_spacing.dart';
-import '../../../../design_system/tokens/app_typography.dart';
 import '../../viewmodels/appointment_list_viewmodel.dart';
 
 /// Estrutura comum das abas Consultas e Histórico: título, carregando,
@@ -49,11 +44,11 @@ class AppointmentListBody extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                Text(title, style: AppTypography.heading),
+                Text(title, style: context.typography.heading),
                 const SizedBox(height: AppSpacing.xs),
-                Text(subtitle, style: AppTypography.subtitle),
+                Text(subtitle, style: context.typography.subtitle),
                 const SizedBox(height: AppSpacing.lg),
-                ..._content(),
+                ..._content(context),
               ],
             ),
           ),
@@ -62,7 +57,7 @@ class AppointmentListBody extends StatelessWidget {
     );
   }
 
-  List<Widget> _content() {
+  List<Widget> _content(BuildContext context) {
     switch (vm.status) {
       case AppointmentListStatus.loading:
         return const [
@@ -73,16 +68,12 @@ class AppointmentListBody extends StatelessWidget {
       case AppointmentListStatus.error:
         return [
           const SizedBox(height: AppSpacing.lg),
-          const Icon(
-            Icons.cloud_off_outlined,
-            size: 48,
-            color: AppColors.error,
-          ),
+          Icon(Icons.cloud_off_outlined, size: 48, color: context.colors.error),
           const SizedBox(height: AppSpacing.md),
           Text(
             vm.errorMessage!,
             textAlign: TextAlign.center,
-            style: AppTypography.body,
+            style: context.typography.body,
           ),
           const SizedBox(height: AppSpacing.lg),
           AppButton(label: 'Tentar novamente', onPressed: vm.load),
@@ -91,12 +82,12 @@ class AppointmentListBody extends StatelessWidget {
         if (vm.isEmpty) {
           return [
             const SizedBox(height: AppSpacing.xl),
-            Icon(emptyIcon, size: 56, color: AppColors.secondary),
+            Icon(emptyIcon, size: 56, color: context.colors.secondary),
             const SizedBox(height: AppSpacing.md),
             Text(
               emptyMessage,
               textAlign: TextAlign.center,
-              style: AppTypography.subtitle,
+              style: context.typography.subtitle,
             ),
             if (emptyActionLabel != null && onEmptyAction != null) ...[
               const SizedBox(height: AppSpacing.lg),

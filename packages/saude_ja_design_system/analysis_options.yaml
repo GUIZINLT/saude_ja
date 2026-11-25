@@ -1,0 +1,39 @@
+# Regras de análise estática do projeto (flutter analyze).
+#
+# Parte do conjunto recomendado do Flutter (flutter_lints) e acrescenta
+# regras mais rígidas de tipagem, organização e estilo.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+  language:
+    # Não deixa passar conversões implícitas de dynamic nem tipos genéricos
+    # sem parâmetro (ex.: List em vez de List<String>).
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    # Tipagem e segurança
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - unawaited_futures
+    - cancel_subscriptions
+    - close_sinks
+
+    # Imutabilidade
+    - prefer_final_locals
+    - prefer_final_in_for_each
+    - prefer_const_declarations
+
+    # Organização e legibilidade
+    - directives_ordering
+    - prefer_single_quotes
+    - avoid_redundant_argument_values
+    - unnecessary_lambdas
+    - unnecessary_parenthesis
+    - use_named_constants
+    - sort_unnamed_constructors_first
+    - avoid_print

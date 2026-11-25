@@ -1,0 +1,15 @@
+name: saude_ja_design_system_example
+description: Abre o Sample App do design system do SaúdeJá.
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  saude_ja_design_system:
+    path: ../
+
+flutter:
+  uses-material-design: true

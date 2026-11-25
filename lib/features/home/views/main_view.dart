@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
-import '../../../design_system/components/app_bottom_navigation.dart';
 import '../../appointments/viewmodels/appointment_list_viewmodel.dart';
 import '../../appointments/views/appointments_view.dart';
 import '../../history/views/history_view.dart';

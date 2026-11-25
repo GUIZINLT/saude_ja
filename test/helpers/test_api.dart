@@ -21,11 +21,13 @@ Future<void> loadMockAssets() async {
   }
 }
 
-/// MockBackend com os dados de assets/mock e relógio fixo
-/// (ter, 24/11/2026 07:00).
-MockBackend createTestBackend() => MockBackend(
+/// MockBackend com os dados de assets/mock, relógio fixo
+/// (ter, 24/11/2026 07:00) e código de recuperação de senha fixo
+/// ("123456").
+MockBackend createTestBackend({DateTime Function()? clock}) => MockBackend(
   loader: (f) async => _cache[f]!,
-  clock: () => DateTime(2026, 11, 24, 7),
+  clock: clock ?? () => DateTime(2026, 11, 24, 7),
+  resetCodeGenerator: () => '123456',
 );
 
 /// MockApiService sem atraso, sobre o [createTestBackend].

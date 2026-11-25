@@ -1,0 +1,6 @@
+.dart_tool/
+build/
+# Pacote: as versões ficam travadas no pubspec.lock do app.
+pubspec.lock
+example/pubspec.lock
+**/failures/

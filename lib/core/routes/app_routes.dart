@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../data/repositories/appointment_repository.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/catalog_repository.dart';
-import '../../design_system/sample_app/sample_app.dart';
 import '../../features/appointments/viewmodels/appointment_list_viewmodel.dart';
 import '../../features/appointments/viewmodels/schedule_viewmodel.dart';
 import '../../features/appointments/views/schedule_view.dart';
+import '../../features/auth/viewmodels/forgot_password_viewmodel.dart';
 import '../../features/auth/viewmodels/login_viewmodel.dart';
 import '../../features/auth/viewmodels/register_viewmodel.dart';
+import '../../features/auth/views/forgot_password_view.dart';
 import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
 import '../../features/doctors/viewmodels/doctor_details_viewmodel.dart';
@@ -23,6 +25,7 @@ class AppRoutes {
 
   static const login = '/login';
   static const register = '/register';
+  static const forgotPassword = '/forgot-password';
   static const home = '/home';
 
   /// Argumento: id do médico (String).
@@ -41,6 +44,11 @@ class AppRoutes {
     // Home.
     login: (context) =>
         context.read<AuthRepository>().isLoggedIn ? _homePage() : _loginPage(),
+    forgotPassword: (_) => ChangeNotifierProvider(
+      create: (context) =>
+          ForgotPasswordViewModel(context.read<AuthRepository>()),
+      child: const ForgotPasswordView(),
+    ),
     register: (_) => ChangeNotifierProvider(
       create: (context) => RegisterViewModel(context.read<AuthRepository>()),
       child: const RegisterView(),

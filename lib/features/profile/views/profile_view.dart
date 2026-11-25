@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/theme_controller.dart';
 import '../../../core/utils/phone_formatter.dart';
 import '../../../data/models/user.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../../../design_system/components/app_button.dart';
-import '../../../design_system/components/app_card.dart';
-import '../../../design_system/tokens/app_colors.dart';
-import '../../../design_system/tokens/app_spacing.dart';
-import '../../../design_system/tokens/app_typography.dart';
 
 /// Perfil simples: dados do paciente e botão Sair.
 class ProfileView extends StatelessWidget {
@@ -33,7 +30,7 @@ class ProfileView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
-        const Text('Perfil', style: AppTypography.heading),
+        Text('Perfil', style: context.typography.heading),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
@@ -50,6 +47,10 @@ class ProfileView extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: AppSpacing.lg),
+        Text('Aparência', style: context.typography.title),
+        const SizedBox(height: AppSpacing.sm),
+        const _ThemeSelector(),
         const SizedBox(height: AppSpacing.xl),
         AppButton(
           label: 'Sair',
@@ -67,6 +68,41 @@ class ProfileView extends StatelessWidget {
   }
 }
 
+/// Escolha do tema: Sistema, Claro ou Escuro.
+class _ThemeSelector extends StatelessWidget {
+  const _ThemeSelector();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<ThemeController>();
+    return SizedBox(
+      width: double.infinity,
+      child: SegmentedButton<ThemeMode>(
+        showSelectedIcon: false,
+        segments: const [
+          ButtonSegment(
+            value: ThemeMode.system,
+            icon: Icon(Icons.brightness_auto_outlined),
+            label: Text('Sistema'),
+          ),
+          ButtonSegment(
+            value: ThemeMode.light,
+            icon: Icon(Icons.light_mode_outlined),
+            label: Text('Claro'),
+          ),
+          ButtonSegment(
+            value: ThemeMode.dark,
+            icon: Icon(Icons.dark_mode_outlined),
+            label: Text('Escuro'),
+          ),
+        ],
+        selected: {theme.mode},
+        onSelectionChanged: (selection) => theme.setMode(selection.first),
+      ),
+    );
+  }
+}
+
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -77,9 +113,9 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.primary, size: 20),
+        Icon(icon, color: context.colors.primary, size: 20),
         const SizedBox(width: AppSpacing.md),
-        Expanded(child: Text(text, style: AppTypography.body)),
+        Expanded(child: Text(text, style: context.typography.body)),
       ],
     );
   }

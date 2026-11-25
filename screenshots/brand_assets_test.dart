@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:saude_ja/design_system/tokens/app_colors.dart';
+import 'package:saude_ja_design_system/saude_ja_design_system.dart';
 
 const _size = 1024.0;
 
@@ -42,13 +42,13 @@ void main() {
     await render(
       tester,
       'icon',
-      const ColoredBox(
-        color: AppColors.primary,
+      ColoredBox(
+        color: AppColors.light.primary,
         child: Center(
           child: Icon(
             Icons.health_and_safety_outlined,
             size: _size * 0.62,
-            color: AppColors.onPrimary,
+            color: AppColors.light.onPrimary,
           ),
         ),
       ),
@@ -61,11 +61,11 @@ void main() {
     await render(
       tester,
       'icon_foreground',
-      const Center(
+      Center(
         child: Icon(
           Icons.health_and_safety_outlined,
           size: _size * 0.42,
-          color: AppColors.onPrimary,
+          color: AppColors.light.onPrimary,
         ),
       ),
     );
@@ -82,13 +82,13 @@ void main() {
           width: _size * 0.6,
           height: _size * 0.6,
           decoration: BoxDecoration(
-            color: AppColors.secondary.withValues(alpha: 0.2),
+            color: AppColors.light.secondary.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
+          child: Icon(
             Icons.health_and_safety_outlined,
             size: _size * 0.33,
-            color: AppColors.primary,
+            color: AppColors.light.primary,
           ),
         ),
       ),
