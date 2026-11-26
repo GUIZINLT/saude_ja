@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Baixar o código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Instalar o Flutter
         uses: subosito/flutter-action@v2
@@ -68,7 +68,7 @@ jobs:
 
       - name: Guardar relatório de cobertura
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cobertura
           path: coverage/lcov.info
@@ -87,7 +87,7 @@ jobs:
 
     steps:
       - name: Baixar o código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Instalar o Flutter
         uses: subosito/flutter-action@v2
@@ -106,7 +106,7 @@ jobs:
 
       - name: Guardar diferenças dos testes visuais
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: testes-visuais-falhas
           path: packages/saude_ja_design_system/test/golden/failures/
