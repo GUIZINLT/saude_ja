@@ -18,6 +18,7 @@ e as versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/
   de contraste, área de toque e rótulos, e telas que se adaptam a fonte
   aumentada.
 - Licença MIT e este CHANGELOG.
+- Protótipo das telas no repositório (`docs/prototipo/`), em HTML e imagem.
 
 ### Alterado
 
