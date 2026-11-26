@@ -604,7 +604,9 @@ test/mock_backend_test.dart       17 testes das rotas e regras
 |---|---|
 | `maria@saudeja.com` | `123456` |
 
-Ela já tem uma consulta confirmada (Dra. Helena Ribeiro, qui 26/11/2026 às 09:30, como na Home do protótipo), uma realizada e uma cancelada.
+Ela já tem uma consulta confirmada (Dra. Helena Ribeiro, às 09:30, como na Home do protótipo), uma realizada e uma cancelada.
+
+> **Datas de exemplo relativas a hoje:** nos JSONs, as datas das consultas e dos horários bloqueados são escritas como `today`, `today+2`, `today-7`... e o mock as converte para datas de verdade ao carregar, passando sábado e domingo para a segunda-feira. Assim a consulta de exemplo está sempre no futuro (daqui a dois dias, ou na segunda) e as do histórico, no passado, em qualquer dia em que o app for aberto.
 
 ### Configuração no projeto
 

@@ -133,7 +133,7 @@ O **Sample App** mostra os tokens e todos os componentes, cada um nos seus estad
 ## API e mock do backend
 
 - A documentação completa, com rotas, requests, responses e códigos de status, está em **[docs/API.md](docs/API.md)**.
-- Os dados iniciais ficam em `assets/mock/*.json`. Agendar e cancelar funcionam durante o uso, e tudo volta ao estado inicial quando o app reinicia.
+- Os dados iniciais ficam em `assets/mock/*.json`. Agendar e cancelar funcionam durante o uso, e tudo volta ao estado inicial quando o app reinicia. As datas de exemplo são relativas ao dia de hoje, então a próxima consulta da Maria está sempre no futuro.
 - O mesmo mock pode rodar como **servidor HTTP** (`http://localhost:8080`):
 
 ```powershell

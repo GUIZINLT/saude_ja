@@ -76,6 +76,34 @@ class MockBackend {
     _doctors = await read('doctors.json');
     _schedules = await read('schedules.json');
     _appointments = await read('appointments.json');
+
+    // Datas relativas ("today+2") viram datas de verdade a partir de hoje,
+    // para os dados de exemplo nunca ficarem no passado.
+    for (final a in _appointments) {
+      a['date'] = _resolveDate(a['date'] as String);
+    }
+    for (final s in _schedules) {
+      for (final b in (s['blocked'] as List).cast<Map<String, dynamic>>()) {
+        b['date'] = _resolveDate(b['date'] as String);
+      }
+    }
+  }
+
+  static final _relativeDateRe = RegExp(r'^today([+-]\d+)?$');
+
+  /// "today", "today+2", "today-7" -> AAAA-MM-DD a partir do relógio. Se
+  /// cair num sábado ou domingo, passa para a segunda-feira (os médicos do
+  /// exemplo atendem em dias úteis). Datas normais voltam sem mudança.
+  String _resolveDate(String value) {
+    final match = _relativeDateRe.firstMatch(value);
+    if (match == null) return value;
+    final days = int.parse(match.group(1) ?? '0');
+    final now = _clock();
+    var date = DateTime(now.year, now.month, now.day + days);
+    while (date.weekday > DateTime.friday) {
+      date = DateTime(date.year, date.month, date.day + 1);
+    }
+    return _formatDate(date);
   }
 
   /// Ponto de entrada único, no formato de uma requisição HTTP.

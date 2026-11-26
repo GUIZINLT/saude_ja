@@ -491,6 +491,33 @@ void main() {
       expect(error(late)['code'], 'RESET_CODE_EXPIRED');
     });
 
+    test(
+      'datas de exemplo são relativas a hoje (fim de semana vai para segunda)',
+      () async {
+        // Sexta, 27/11/2026: "today+2" seria domingo e passa para segunda.
+        final friday = MockBackend(
+          loader: (file) => File('assets/mock/$file').readAsString(),
+          clock: () => DateTime(2026, 11, 27, 7),
+        );
+        final login = await friday.handle(
+          'POST',
+          '/auth/login',
+          body: {'email': 'maria@saudeja.com', 'password': '123456'},
+        );
+        final auth = 'Bearer ${obj(login.body)['token']}';
+        final res = await friday.handle(
+          'GET',
+          '/appointments',
+          authorization: auth,
+        );
+        final byId = {for (final a in list(res)) a['id']: a};
+        expect(byId['a1']!['date'], '2026-11-30'); // +2 -> domingo -> segunda
+        expect(byId['a1']!['status'], 'confirmed'); // continua no futuro
+        expect(byId['a3']!['date'], '2026-11-20'); // -7
+        expect(byId['a2']!['date'], '2026-11-12'); // -15
+      },
+    );
+
     test('rota desconhecida -> 404', () async {
       final res = await api.handle('DELETE', '/appointments/a1');
       expect(res.statusCode, 404);

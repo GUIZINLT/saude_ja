@@ -5,6 +5,17 @@ Todas as mudanças relevantes do SaúdeJá ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e as versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Corrigido
+
+- Datas dos dados de exemplo relativas ao dia de hoje: a próxima consulta
+  de exemplo não fica mais no passado depois de 26/11/2026.
+
+### Alterado
+
+- Ações do CI atualizadas para a v7 (Node.js 24).
+
 ## [1.0.0] - 2026-11-25
 
 ### Adicionado
@@ -80,7 +91,8 @@ e as versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/
   (`AppButton`, `AppTextField`, `AppCard`, `SpecialtyCard`, `DoctorCard`,
   `AppointmentCard`) com Sample App.
 
-[1.0.0]: https://github.com/GUIZINLT/saude_ja/compare/52024fb...HEAD
+[Não lançado]: https://github.com/GUIZINLT/saude_ja/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/GUIZINLT/saude_ja/compare/52024fb...v1.0.0
 [0.3.0]: https://github.com/GUIZINLT/saude_ja/compare/af4cd19...52024fb
 [0.2.0]: https://github.com/GUIZINLT/saude_ja/compare/1d01217...af4cd19
 [0.1.0]: https://github.com/GUIZINLT/saude_ja/commit/1d01217
