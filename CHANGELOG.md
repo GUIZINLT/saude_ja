@@ -19,7 +19,6 @@ e as versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/
   aumentada.
 - Licença MIT e este CHANGELOG.
 - Protótipo das telas no repositório (`docs/prototipo/`), em HTML e imagem.
-- Guia de entrega e apresentação (`docs/ENTREGA.md`).
 
 ### Alterado
 

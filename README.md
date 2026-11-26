@@ -9,8 +9,6 @@ Aplicativo Flutter de **agendamento de consultas médicas**. O paciente cria a c
 
 O projeto tem **design system próprio** em pacote separado (tokens, temas claro e escuro, componentes e Sample App), **arquitetura MVVM** com `provider` e um **mock do backend** que segue a [documentação da API](docs/API.md). Assim, todas as telas funcionam sem servidor.
 
-> **Entrega do trabalho:** o [guia de entrega](docs/ENTREGA.md) mostra onde está cada item pedido e um roteiro de apresentação.
-
 ## Protótipo
 
 Antes do código, as telas principais foram prototipadas com a identidade visual do app (verde e branco, fonte Inter). Cada tela está em [`docs/prototipo/`](docs/prototipo) como HTML, que abre em qualquer navegador, e como imagem.
